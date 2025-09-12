@@ -1,0 +1,75 @@
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+
+model Paciente {
+  id             String     @id @default(uuid())
+  nome           String
+  cpf            String    @unique
+  dataNascimento DateTime
+  endereco       String
+  telefone       String
+  prioridade     String
+  triagem        Triagem?
+  atendimentos   Atendimento[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Funcionario {
+  id        String   @id @default(uuid())
+  nome      String
+  cpf       String   @unique
+  perfil    Perfil
+  senha     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  triagens  Triagem[] @relation("FuncionarioTriagens")
+  atendimentos Atendimento[]
+}
+
+model Triagem {
+  id           String     @id @default(uuid())
+  paciente     Paciente   @relation(fields: [pacienteId], references: [id])
+  pacienteId   String     @unique
+  funcionario  Funcionario? @relation("FuncionarioTriagens", fields: [funcionarioId], references: [id])
+  funcionarioId String?
+  temperatura  Float
+  pressao      String
+  peso         Float
+  altura       Float
+  observacao   String?
+  prioridade   String
+  createdAt    DateTime   @default(now())
+}
+
+model Atendimento {
+  id           String     @id @default(uuid())
+  paciente     Paciente   @relation(fields: [pacienteId], references: [id])
+  pacienteId   String
+  funcionario  Funcionario @relation(fields: [funcionarioId], references: [id])
+  funcionarioId String
+  motivo       String
+  diagnostico  String
+  prescricao   String
+  observacao   String?
+  prioridade   String
+  createdAt    DateTime   @default(now())
+}
+
+enum Perfil {
+  ATENDENTE
+  MEDICO
+  TECNICO_ENFERMAGEM
+  GESTOR
+}
+
+
