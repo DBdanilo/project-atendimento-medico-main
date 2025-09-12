@@ -10,6 +10,7 @@ import Atendimento from './pages/atendimento/Atendimento'
 import FormAtendimento from './pages/atendimento/FormAtendimento'
 import PainelSituacao from './pages/painel/PainelSituacao'
 import Funcionario from './pages/funcionario/Funcionario'
+import Relatorio from './pages/relatorio/Relatorio'
 //import SintuacaoPaciente from './components/SintuacaoPaciente'
 
 import './App.css'
@@ -33,6 +34,10 @@ function App() {
                 {/* <Route path='/paciente/:id' element={<SintuacaoPaciente />} /> */}
                 <Route path='/painel' element={<PainelSituacao />} />
                 <Route path='/funcionarios' element={<Funcionario />} />
+                <Route path='/relatorio' element={<Relatorio />} />
+
+
+
             </Routes>
 
             <Footer />
