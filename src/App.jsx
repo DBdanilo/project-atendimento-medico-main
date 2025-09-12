@@ -9,8 +9,7 @@ import FormTriagem from './pages/triagem/FormTriagem'
 import Atendimento from './pages/atendimento/Atendimento'
 import FormAtendimento from './pages/atendimento/FormAtendimento'
 import PainelSituacao from './pages/painel/PainelSituacao'
-import CadastroFuncionario from './pages/CadastroFuncionario'
-import ListaFuncionarios from './pages/ListaFuncionarios'
+import Funcionario from './pages/funcionario/Funcionario'
 //import SintuacaoPaciente from './components/SintuacaoPaciente'
 
 import './App.css'
@@ -22,11 +21,7 @@ function App() {
         <BrowserRouter>
             <Header />
 
-            {/* Menu extra para acesso rápido aos módulos de funcionário */}
-            <nav style={{ margin: '1rem' }}>
-                <Link to="/cadastro-funcionario" style={{ marginRight: 10 }}>Cadastro de Funcionário</Link>
-                <Link to="/lista-funcionarios">Lista de Funcionários</Link>
-            </nav>
+
 
             <Routes>
                 <Route path='/' element={<Home />} />
@@ -37,8 +32,7 @@ function App() {
                 <Route path='/atendimento/:id' element={<FormAtendimento />} />
                 {/* <Route path='/paciente/:id' element={<SintuacaoPaciente />} /> */}
                 <Route path='/painel' element={<PainelSituacao />} />
-                <Route path='/cadastro-funcionario' element={<CadastroFuncionario />} />
-                <Route path='/lista-funcionarios' element={<ListaFuncionarios />} />
+                <Route path='/funcionarios' element={<Funcionario />} />
             </Routes>
 
             <Footer />
