@@ -1,87 +1,37 @@
 import React, { useState, useEffect } from "react";
-
-const perfis = [
-  "Atendente",
-  "Médico",
-  "Técnico de Enfermagem",
-  "Gestor",
-];
-
-const initialState = {
-  nome: "",
-  cpf: "",
-  perfil: perfis[0],
-};
-
+import { getFuncionarios } from '../../utils/api';
+import CadastroFuncionario from './CadastroFuncionario';
 import "./funcionario.css";
 
 function Funcionario() {
-  const [funcionario, setFuncionario] = useState(initialState);
-  const [mensagem, setMensagem] = useState("");
   const [funcionarios, setFuncionarios] = useState([]);
+  const [erro, setErro] = useState("");
+  const [atualizar, setAtualizar] = useState(false);
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("funcionarios") || "[]");
-    setFuncionarios(data);
-  }, []);
+    async function fetchFuncionarios() {
+      try {
+        const data = await getFuncionarios();
+        setFuncionarios(data);
+      } catch (err) {
+        setErro("Erro ao buscar funcionários");
+      }
+    }
+    fetchFuncionarios();
+  }, [atualizar]);
 
-  const handleChange = (e) => {
-    setFuncionario({ ...funcionario, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const novosFuncionarios = [...funcionarios, funcionario];
-    setFuncionarios(novosFuncionarios);
-    localStorage.setItem("funcionarios", JSON.stringify(novosFuncionarios));
-    setMensagem("Funcionário cadastrado com sucesso!");
-    setFuncionario(initialState);
-  };
+  // Função para ser chamada após cadastro
+  const onCadastrado = () => setAtualizar(a => !a);
 
   return (
-  <div className="container-funcionario">
-      <h2>Cadastro de Funcionário</h2>
-      <form onSubmit={handleSubmit} className="form-funcionario">
-        <div>
-          <label>Nome:</label>
-          <input
-            name="nome"
-            value={funcionario.nome}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>CPF:</label>
-          <input
-            name="cpf"
-            value={funcionario.cpf}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Perfil:</label>
-          <select
-            name="perfil"
-            value={funcionario.perfil}
-            onChange={handleChange}
-          >
-            {perfis.map((perfil) => (
-              <option key={perfil} value={perfil}>
-                {perfil}
-              </option>
-            ))}
-          </select>
-        </div>
-  <button type="submit">Cadastrar</button>
-      </form>
-      {mensagem && <p style={{ color: "green" }}>{mensagem}</p>}
+    <div className="container-funcionario">
+      <CadastroFuncionario onCadastrado={onCadastrado} />
       <hr />
       <h2>Funcionários Cadastrados</h2>
+      {erro && <p style={{ color: 'red' }}>{erro}</p>}
       <ul className="lista-funcionarios">
-        {funcionarios.map((f, idx) => (
-          <li key={idx}>
+        {funcionarios.map((f) => (
+          <li key={f.id}>
             <strong>{f.nome}</strong> - CPF: {f.cpf} - Perfil: {f.perfil}
           </li>
         ))}

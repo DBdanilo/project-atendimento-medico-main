@@ -1,32 +1,46 @@
 import React, { useState } from "react";
+import { criarFuncionario } from '../../utils/api';
+
 const perfis = [
-  "Atendente",
-  "Médico",
-  "Técnico de Enfermagem",
-  "Gestor",
+  { label: "Atendente", value: "ATENDENTE" },
+  { label: "Médico", value: "MEDICO" },
+  { label: "Técnico de Enfermagem", value: "TECNICO_ENFERMAGEM" },
+  { label: "Gestor", value: "GESTOR" },
 ];
 
 const initialState = {
   nome: "",
   cpf: "",
-  perfil: perfis[0],
+  perfil: perfis[0].value,
+  senha: ""
 };
 
-function CadastroFuncionario() {
+
+function CadastroFuncionario({ onCadastrado }) {
   const [funcionario, setFuncionario] = useState(initialState);
   const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
 
   const handleChange = (e) => {
     setFuncionario({ ...funcionario, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const funcionarios = JSON.parse(localStorage.getItem("funcionarios") || "[]");
-    funcionarios.push(funcionario);
-    localStorage.setItem("funcionarios", JSON.stringify(funcionarios));
-    setMensagem("Funcionário cadastrado com sucesso!");
-    setFuncionario(initialState);
+    setMensagem("");
+    setErro("");
+    try {
+      await criarFuncionario(funcionario);
+      setMensagem("Funcionário cadastrado com sucesso!");
+      setFuncionario(initialState);
+      if (onCadastrado) onCadastrado();
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.error) {
+        setErro(err.response.data.error);
+      } else {
+        setErro("Erro ao cadastrar funcionário");
+      }
+    }
   };
 
   return (
@@ -59,15 +73,26 @@ function CadastroFuncionario() {
             onChange={handleChange}
           >
             {perfis.map((perfil) => (
-              <option key={perfil} value={perfil}>
-                {perfil}
+              <option key={perfil.value} value={perfil.value}>
+                {perfil.label}
               </option>
             ))}
           </select>
         </div>
+        <div>
+          <label>Senha:</label>
+          <input
+            name="senha"
+            type="password"
+            value={funcionario.senha}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <button type="submit" style={{ marginTop: 10 }}>Cadastrar</button>
       </form>
       {mensagem && <p style={{ color: "green" }}>{mensagem}</p>}
+      {erro && <p style={{ color: "red" }}>{erro}</p>}
     </div>
   );
 }
