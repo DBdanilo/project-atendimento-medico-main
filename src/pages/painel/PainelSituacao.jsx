@@ -42,11 +42,12 @@ export default function PainelSituacao() {
     const [ultimosChamados, setUltimosChamados] = useState([]);
 
     useEffect(() => {
-        let ultimoPacientes = getPacientes()
+        let ultimoPacientes = []
         let ultimoChamados = localStorage.getItem('ultimos_chamados')
 
-        function atualizarPainel() {
-            const data = ordenaByPrioridade(getPacientes());
+            async function atualizarPainel() {
+            const todos = await getPacientes();
+            const data = ordenaByPrioridade(todos);
             setPacientes(data);
             setUltimosChamados(getUltimosChamados());
         }
@@ -60,8 +61,8 @@ export default function PainelSituacao() {
         })
 
         // Atualização automática por polling
-        const interval = setInterval(() => {
-            const atualPacientes = getPacientes()
+            const interval = setInterval(async () => {
+            const atualPacientes = await getPacientes();
 
             ordenaByPrioridade(atualPacientes)
 

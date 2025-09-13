@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getPacientes, registrarChamada, salvarPaciente } from '../../utils/dados'
+import { getPaciente, atualizarPaciente } from '../../utils/dados'
 import { calcularIdade, calcularIMC } from '../../utils/date'
 
 import './FormAtendimento.css'
@@ -20,55 +20,32 @@ export default function FormAtendimento() {
     const salvoRef = useRef(false)
 
     useEffect(() => {
-        const pacienteAtendimento = getPacientes().find(p => String(p.id) === id)
-
-        if (!pacienteAtendimento) return
-
-        setPaciente(pacienteAtendimento)
-
-        if (!pacienteAtendimento.emAtendimento && !salvoRef.current) {
-            pacienteAtendimento.emAtendimento = true
-
-            salvarPaciente(pacienteAtendimento)
-        }
-
-        return () => {
-            if (pacienteAtendimento && pacienteAtendimento.emAtendimento && !salvoRef.current) {
-                pacienteAtendimento.emAtendimento = false
-
-                salvarPaciente(pacienteAtendimento)
+        async function fetchPaciente() {
+            const pacienteAtendimento = await getPaciente(id);
+            if (!pacienteAtendimento) return;
+            setPaciente(pacienteAtendimento);
+            if (!pacienteAtendimento.emAtendimento && !salvoRef.current) {
+                pacienteAtendimento.emAtendimento = true;
+                await atualizarPaciente(pacienteAtendimento.id, pacienteAtendimento);
             }
         }
-    }, [id])
+        fetchPaciente();
+        return () => {};
+    }, [id]);
 
     useEffect(() => {
-        if (!paciente?.id) return
-
-        registrarChamada(paciente, 'Atendimento')
-
-        const handleBeforeUnload = (event) => {
-            if (salvoRef.current) return
-
-            event.preventDefault()
-
-            event.returnValue = ""
-
-            const pacienteAtualizado = {
-                ...paciente,
-            }
-
-            pacienteAtualizado.emAtendimento = false
-
-            console.log('finalizando', paciente)
-
-            salvarPaciente(pacienteAtualizado)
-        }
-
-        window.addEventListener("beforeunload", handleBeforeUnload)
-
+        if (!paciente?.id) return;
+        const handleBeforeUnload = async (event) => {
+            if (salvoRef.current) return;
+            event.preventDefault();
+            event.returnValue = "";
+            const pacienteAtualizado = { ...paciente, emAtendimento: false };
+            await atualizarPaciente(pacienteAtualizado.id, pacienteAtualizado);
+        };
+        window.addEventListener("beforeunload", handleBeforeUnload);
         return () => {
-            window.removeEventListener("beforeunload", handleBeforeUnload)
-        }
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
     }, [paciente]);
 
     function handleChange(e) {
@@ -77,46 +54,32 @@ export default function FormAtendimento() {
         setFormAtendimento(prev => ({ ...prev, [name]: value }))
     }
 
-    function handleSubmit(e) {
-        e.preventDefault()
-
+    async function handleSubmit(e) {
+        e.preventDefault();
         if (!formAtendimento.motivo || !formAtendimento.diagnostico || !formAtendimento.prescricao) {
-            alert('Preencha todos os campos')
-
-            return
+            alert('Preencha todos os campos');
+            return;
         }
-
         const pacienteAtualizado = {
             ...paciente,
             atendimento: formAtendimento,
-        }
-
-        delete pacienteAtualizado.emAtendimento
-
-        salvarPaciente(pacienteAtualizado)
-
-        salvoRef.current = true
-
-        console.log('submit', pacienteAtualizado)
-
-        alert('Atendimento salvo com sucesso!')
-
-        navigate('/atendimento')
-
-        window.scrollTo(0, 0)
+        };
+        delete pacienteAtualizado.emAtendimento;
+        await atualizarPaciente(pacienteAtualizado.id, pacienteAtualizado);
+        salvoRef.current = true;
+        alert('Atendimento salvo com sucesso!');
+        navigate('/atendimento');
+        window.scrollTo(0, 0);
     }
 
-    function handleVoltar() {
+    async function handleVoltar() {
         const pacienteAtualizado = {
             ...paciente,
             atendimento: undefined,
-        }
-
-        pacienteAtualizado.emAtendimento = false
-
-        salvarPaciente(pacienteAtualizado)
-
-        navigate('/atendimento')
+            emAtendimento: false,
+        };
+        await atualizarPaciente(pacienteAtualizado.id, pacienteAtualizado);
+        navigate('/atendimento');
     }
 
     if (!paciente?.id) return <main><p>Paciente: {id}, não encontrado</p></main>

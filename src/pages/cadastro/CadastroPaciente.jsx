@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import Prioridade from '../../components/Prioridade'
-import { getPacientes, salvarPacientes } from '../../utils/dados'
+import { criarPaciente } from '../../utils/dados'
 
 import './CadastroPaciente.css'
 
@@ -28,15 +28,10 @@ export default function CadastroPaciente() {
         setForm(prev => ({ ...prev, prioridade: novaPrioridade }))
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
-        const pacientes = getPacientes()
-        pacientes.push({ ...form, triagem: undefined, atendimento: undefined })
-
-        salvarPacientes(pacientes)
-
-        alert('Paciente cadastrado com sucesso!')
-
+        await criarPaciente({ ...form, triagem: undefined, atendimento: undefined });
+        alert('Paciente cadastrado com sucesso!');
         setForm({
             id: uuid(),
             nome: '',
@@ -45,7 +40,7 @@ export default function CadastroPaciente() {
             endereco: '',
             telefone: '',
             prioridade: 'Normal',
-        })
+        });
     }
 
     return (

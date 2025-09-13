@@ -14,10 +14,11 @@ export default function Triagem() {
         atualizarLista()
     }, [])
 
-    function atualizarLista() {
-        const pacientesFiltrados = getPacientes().filter(p => !p.triagem)
 
-        setPacientes(pacientesFiltrados)
+    async function atualizarLista() {
+        const todos = await getPacientes();
+        const pacientesFiltrados = todos.filter(p => !p.triagem);
+        setPacientes(pacientesFiltrados);
     }
 
     function handleSelecionar(id) {
@@ -28,10 +29,9 @@ export default function Triagem() {
         navigate(`/triagem/${id}`)
     }
 
-    function excluirPaciente(id) {
-        deletarPaciente(id)
-
-        atualizarLista()
+    async function excluirPaciente(id) {
+        await deletarPaciente(id);
+        atualizarLista();
     }
 
     return (

@@ -1,6 +1,7 @@
 
 
 import React, { useState } from 'react';
+import { login } from '../utils/api';
 import './Login.css';
 
 export default function Login({ onLogin }) {
@@ -8,17 +9,16 @@ export default function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Usuário geral para testes: geral/geral
-    if (
-      (username === 'admin' && password === '1234') ||
-      (username === 'geral' && password === 'geral')
-    ) {
-      setError('');
-      if (onLogin) onLogin(username);
-      localStorage.setItem('usuarioLogado', username);
-    } else {
+    setError('');
+    try {
+      // Aqui username é o CPF
+      const res = await login(username, password);
+      if (onLogin) onLogin(res.nome);
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('usuarioLogado', res.nome);
+    } catch (err) {
       setError('Usuário ou senha inválidos');
     }
   };
@@ -36,7 +36,7 @@ export default function Login({ onLogin }) {
         </h2>
         <input
           type="text"
-          placeholder="Usuário"
+          placeholder="CPF"
           value={username}
           onChange={e => setUsername(e.target.value)}
           autoFocus

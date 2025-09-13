@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import Prioridade from "../../components/Prioridade"
-import { getPacientes, registrarChamada, salvarPaciente } from "../../utils/dados"
+import { getPaciente, atualizarPaciente } from "../../utils/dados"
 import { calcularIdade } from "../../utils/date"
 
 import './FormTriagem.css'
@@ -23,68 +23,43 @@ export default function FormTriagem() {
     const salvoRef = useRef(false)
 
     useEffect(() => {
-        if (!paciente?.id) return
-
-        registrarChamada(paciente, 'Triagem')
-
-        const handleBeforeUnload = (event) => {
-            if (salvoRef.current) return
-
-            event.preventDefault()
-            event.returnValue = ""
-
-            const pacienteAtualizado = {
-                ...paciente,
-            }
-
-            pacienteAtualizado.emTriagem = false
-
-            console.log('finalizando', paciente)
-
-            salvarPaciente(pacienteAtualizado)
-        }
-
-        window.addEventListener("beforeunload", handleBeforeUnload)
-
+        if (!paciente?.id) return;
+        const handleBeforeUnload = async (event) => {
+            if (salvoRef.current) return;
+            event.preventDefault();
+            event.returnValue = "";
+            const pacienteAtualizado = { ...paciente, emTriagem: false };
+            await atualizarPaciente(pacienteAtualizado.id, pacienteAtualizado);
+        };
+        window.addEventListener("beforeunload", handleBeforeUnload);
         return () => {
-            window.removeEventListener("beforeunload", handleBeforeUnload)
-        }
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
     }, [paciente]);
 
     useEffect(() => {
-        const pacienteTriagem = getPacientes().find(p => String(p.id) === id)
-
-        if (!pacienteTriagem) return
-
-        setPaciente(pacienteTriagem)
-
-        setFormTriagem(prev => {
-            if (Object.values(prev).some(v => v)) return prev
-
-            if (pacienteTriagem.triagem) {
-                return pacienteTriagem.triagem
-            }
-
-            return {
-                ...prev,
-                prioridade: pacienteTriagem.prioridade,
-            }
-        })
-
-        if (!pacienteTriagem.emTriagem && !salvoRef.current) {
-            pacienteTriagem.emTriagem = true
-
-            salvarPaciente(pacienteTriagem)
-        }
-
-        return () => {
-            if (pacienteTriagem && pacienteTriagem.emTriagem && !salvoRef.current) {
-                const pacienteParaResetar = { ...pacienteTriagem, emTriagem: false }
-
-                salvarPaciente(pacienteParaResetar)
+        async function fetchPaciente() {
+            const pacienteTriagem = await getPaciente(id);
+            if (!pacienteTriagem) return;
+            setPaciente(pacienteTriagem);
+            setFormTriagem(prev => {
+                if (Object.values(prev).some(v => v)) return prev;
+                if (pacienteTriagem.triagem) {
+                    return pacienteTriagem.triagem;
+                }
+                return {
+                    ...prev,
+                    prioridade: pacienteTriagem.prioridade,
+                };
+            });
+            if (!pacienteTriagem.emTriagem && !salvoRef.current) {
+                pacienteTriagem.emTriagem = true;
+                await atualizarPaciente(pacienteTriagem.id, pacienteTriagem);
             }
         }
-    }, [id])
+        fetchPaciente();
+        return () => {};
+    }, [id]);
 
     function handleChange(e) {
         const { name, value } = e.target
@@ -97,49 +72,34 @@ export default function FormTriagem() {
     }
 
 
-    function handleSubmit(e) {
-        e.preventDefault()
-
+    async function handleSubmit(e) {
+        e.preventDefault();
         if (!formTriagem.temperatura || !formTriagem.pressao || !formTriagem.peso || !formTriagem.altura) {
-            alert('Preencha todos os campos obrigatórios!')
-
-            return
+            alert('Preencha todos os campos obrigatórios!');
+            return;
         }
-
         const pacienteAtualizado = {
             ...paciente,
             triagem: formTriagem,
             prioridade: formTriagem.prioridade,
-        }
-
-        delete pacienteAtualizado.emTriagem
-
-        salvarPaciente(pacienteAtualizado)
-
-        salvoRef.current = true
-
-        //console.log('submit', pacienteAtualizado)
-
-        alert('Triagem salva com sucesso!')
-
-        navigate('/triagem')
-
-        window.scrollTo(0, 0)
+        };
+        delete pacienteAtualizado.emTriagem;
+        await atualizarPaciente(pacienteAtualizado.id, pacienteAtualizado);
+        salvoRef.current = true;
+        alert('Triagem salva com sucesso!');
+        navigate('/triagem');
+        window.scrollTo(0, 0);
     }
 
-    function handleVoltar() {
+    async function handleVoltar() {
         const pacienteAtualizado = {
             ...paciente,
             triagem: undefined,
-        }
-
-        pacienteAtualizado.emTriagem = false
-
-        salvarPaciente(pacienteAtualizado)
-
-        navigate('/triagem')
-
-        window.scrollTo(0, 0)
+            emTriagem: false,
+        };
+        await atualizarPaciente(pacienteAtualizado.id, pacienteAtualizado);
+        navigate('/triagem');
+        window.scrollTo(0, 0);
     }
 
 
