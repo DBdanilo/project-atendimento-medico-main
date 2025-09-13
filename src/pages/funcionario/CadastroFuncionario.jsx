@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { criarFuncionario } from '../../utils/api';
+import "./funcionario.css";
 
 const perfis = [
   { label: "Atendente", value: "ATENDENTE" },
@@ -14,7 +15,6 @@ const initialState = {
   perfil: perfis[0].value,
   senha: ""
 };
-
 
 function CadastroFuncionario({ onCadastrado }) {
   const [funcionario, setFuncionario] = useState(initialState);
@@ -44,55 +44,78 @@ function CadastroFuncionario({ onCadastrado }) {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "0 auto" }}>
-      <h2>Cadastro de Funcionário</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Nome:</label>
-          <input
-            name="nome"
-            value={funcionario.nome}
-            onChange={handleChange}
-            required
-          />
+    <div className="form-funcionario-card">
+      <form className="form-funcionario" onSubmit={handleSubmit} autoComplete="off">
+        <div className="form-funcionario-header">
+          <span className="form-funcionario-icon" role="img" aria-label="user">👤</span>
+          <h2>Cadastro de Funcionário</h2>
         </div>
-        <div>
-          <label>CPF:</label>
-          <input
-            name="cpf"
-            value={funcionario.cpf}
-            onChange={handleChange}
-            required
-          />
+        <div className="form-group">
+          <label htmlFor="nome">Nome</label>
+          <div className="input-icon-group">
+            <span className="input-icon">📝</span>
+            <input
+              id="nome"
+              name="nome"
+              value={funcionario.nome}
+              onChange={handleChange}
+              required
+              placeholder="Digite o nome"
+            />
+          </div>
         </div>
-        <div>
-          <label>Perfil:</label>
-          <select
-            name="perfil"
-            value={funcionario.perfil}
-            onChange={handleChange}
-          >
-            {perfis.map((perfil) => (
-              <option key={perfil.value} value={perfil.value}>
-                {perfil.label}
-              </option>
-            ))}
-          </select>
+        <div className="form-group">
+          <label htmlFor="cpf">CPF</label>
+          <div className="input-icon-group">
+            <span className="input-icon">#️⃣</span>
+            <input
+              id="cpf"
+              name="cpf"
+              value={funcionario.cpf}
+              onChange={handleChange}
+              required
+              placeholder="Digite o CPF"
+              maxLength={14}
+            />
+          </div>
         </div>
-        <div>
-          <label>Senha:</label>
-          <input
-            name="senha"
-            type="password"
-            value={funcionario.senha}
-            onChange={handleChange}
-            required
-          />
+        <div className="form-group">
+          <label htmlFor="perfil">Perfil</label>
+          <div className="input-icon-group">
+            <span className="input-icon">🏷️</span>
+            <select
+              id="perfil"
+              name="perfil"
+              value={funcionario.perfil}
+              onChange={handleChange}
+            >
+              {perfis.map((perfil) => (
+                <option key={perfil.value} value={perfil.value}>
+                  {perfil.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <button type="submit" style={{ marginTop: 10 }}>Cadastrar</button>
+        <div className="form-group">
+          <label htmlFor="senha">Senha</label>
+          <div className="input-icon-group">
+            <span className="input-icon">🔒</span>
+            <input
+              id="senha"
+              name="senha"
+              type="password"
+              value={funcionario.senha}
+              onChange={handleChange}
+              required
+              placeholder="Digite a senha"
+            />
+          </div>
+        </div>
+        <button className="form-btn" type="submit">Cadastrar</button>
+        {mensagem && <div className="form-success">{mensagem}</div>}
+        {erro && <div className="form-error">{erro}</div>}
       </form>
-      {mensagem && <p style={{ color: "green" }}>{mensagem}</p>}
-      {erro && <p style={{ color: "red" }}>{erro}</p>}
     </div>
   );
 }
