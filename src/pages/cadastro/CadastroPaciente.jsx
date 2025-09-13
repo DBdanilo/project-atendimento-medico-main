@@ -1,22 +1,56 @@
+
 import { useState } from 'react'
-import { v4 as uuid } from 'uuid'
 import Prioridade from '../../components/Prioridade'
-import { criarPaciente } from '../../utils/dados'
-
+import { criarPaciente, getPacientePorCpf } from '../../utils/api'
 import './CadastroPaciente.css'
-
 
 export default function CadastroPaciente() {
     const [form, setForm] = useState({
-        id: uuid(),
         nome: '',
         cpf: '',
         dataNascimento: '',
+        sexo: '',
         endereco: '',
         telefone: '',
         prioridade: 'Normal',
     })
-
+    const [mensagem, setMensagem] = useState("");
+    const [erro, setErro] = useState("");
+    const [buscaCpf, setBuscaCpf] = useState("");
+    const [buscando, setBuscando] = useState(false);
+    async function handleBuscarPaciente(e) {
+        e.preventDefault();
+        setMensagem("");
+        setErro("");
+        setBuscando(true);
+        try {
+            const paciente = await getPacientePorCpf(buscaCpf);
+            if (paciente) {
+                // Converter data para yyyy-MM-dd se vier em outro formato
+                let dataNascimento = '';
+                if (paciente.dataNascimento) {
+                    const d = new Date(paciente.dataNascimento);
+                    dataNascimento = d.toISOString().slice(0,10);
+                }
+                setForm({
+                    nome: paciente.nome || '',
+                    cpf: paciente.cpf || '',
+                    dataNascimento,
+                    sexo: paciente.sexo || '',
+                    endereco: paciente.endereco || '',
+                    telefone: paciente.telefone || '',
+                    prioridade: paciente.prioridade || 'Normal',
+                });
+                setMensagem('Paciente encontrado e carregado no formulário.');
+            } else {
+                setErro('Paciente não encontrado. Preencha os dados para cadastrar.');
+            }
+        } catch {
+            setErro('Paciente não encontrado. Preencha os dados para cadastrar.');
+        }
+        setBuscando(false);
+    }
+    // const [ultimoPacienteId, setUltimoPacienteId] = useState(null);
 
 
     function handleChange(e) {
@@ -30,24 +64,120 @@ export default function CadastroPaciente() {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        await criarPaciente({ ...form, triagem: undefined, atendimento: undefined });
-        alert('Paciente cadastrado com sucesso!');
-        setForm({
-            id: uuid(),
-            nome: '',
-            cpf: '',
-            dataNascimento: '',
-            endereco: '',
-            telefone: '',
-            prioridade: 'Normal',
-        });
+        setMensagem("");
+        setErro("");
+    // setIncluindo(false);
+        try {
+            // Enviar apenas os campos esperados pelo backend
+            // Converter dataNascimento de dd/mm/aaaa para ISO
+            let dataISO = '';
+            if (form.dataNascimento && form.dataNascimento.includes('/')) {
+                const [dia, mes, ano] = form.dataNascimento.split('/');
+                dataISO = new Date(`${ano}-${mes}-${dia}`).toISOString();
+            } else if (form.dataNascimento) {
+                dataISO = new Date(form.dataNascimento).toISOString();
+            }
+            const pacientePayload = {
+                nome: form.nome,
+                cpf: form.cpf,
+                dataNascimento: dataISO,
+                sexo: form.sexo,
+                endereco: form.endereco,
+                telefone: form.telefone,
+                prioridade: form.prioridade,
+            };
+            await criarPaciente(pacientePayload);
+            setMensagem('Paciente cadastrado com sucesso!');
+            // setUltimoPacienteId(paciente.id);
+            setForm({
+                nome: '',
+                cpf: '',
+                dataNascimento: '',
+                sexo: '',
+                endereco: '',
+                telefone: '',
+                prioridade: 'Normal',
+            });
+        } catch (err) {
+            if (err.response && err.response.data && err.response.data.error) {
+                setErro(err.response.data.error);
+            } else {
+                setErro('Erro ao cadastrar paciente');
+            }
+        }
+    }
+
+
+    async function handleIncluirTriagem(e) {
+        e.preventDefault();
+        setMensagem("");
+        setErro("");
+        try {
+            // Converter dataNascimento de dd/mm/aaaa para ISO
+            let dataISO2 = '';
+            if (form.dataNascimento && form.dataNascimento.includes('/')) {
+                const [dia, mes, ano] = form.dataNascimento.split('/');
+                dataISO2 = new Date(`${ano}-${mes}-${dia}`).toISOString();
+            } else if (form.dataNascimento) {
+                dataISO2 = new Date(form.dataNascimento).toISOString();
+            }
+            const pacientePayload = {
+                nome: form.nome,
+                cpf: form.cpf,
+                dataNascimento: dataISO2,
+                sexo: form.sexo,
+                endereco: form.endereco,
+                telefone: form.telefone,
+                prioridade: form.prioridade
+            };
+            // Cadastra o paciente e pega o id
+            const paciente = await criarPaciente(pacientePayload);
+            // Cria a triagem para o paciente
+            await import('../../utils/api').then(({ criarTriagem }) =>
+                criarTriagem({
+                    pacienteId: paciente.id,
+                    prioridade: paciente.prioridade,
+                    temperatura: 0,
+                    pressao: '',
+                    peso: 0,
+                    altura: 0,
+                    observacao: ''
+                })
+            );
+            setMensagem('Paciente cadastrado e incluído na triagem!');
+            setForm({
+                nome: '',
+                cpf: '',
+                dataNascimento: '',
+                sexo: '',
+                endereco: '',
+                telefone: '',
+                prioridade: 'Normal',
+            });
+        } catch (err) {
+            if (err.response && err.response.data && err.response.data.error) {
+                setErro(err.response.data.error);
+            } else {
+                setErro('Erro ao cadastrar paciente e incluir na triagem');
+            }
+        }
     }
 
     return (
-        <main className="cadastro-paciente">
-            <h1>Cadastro de Paciente</h1>
-            <form onSubmit={handleSubmit}>
-                <label>Nome completo:</label>
+        <main className="cadastro-paciente" style={{maxWidth:480,margin:'0 auto',padding:'2rem 1rem'}}>
+            <h1 style={{textAlign:'center',marginBottom:'1.5rem'}}>Cadastro de Paciente</h1>
+            <form onSubmit={handleBuscarPaciente} style={{display:'flex',gap:'0.5rem',alignItems:'center',marginBottom:'2rem',justifyContent:'center'}}>
+                <input
+                    type="text"
+                    placeholder="Buscar por CPF"
+                    value={buscaCpf}
+                    onChange={e => setBuscaCpf(e.target.value)}
+                    style={{width:'180px',padding:'0.5em',borderRadius:4,border:'1px solid #bbb'}}
+                />
+                <button type="submit" disabled={buscando} style={{padding:'0.5em 1.2em',borderRadius:4,background:'#1976d2',color:'#fff',border:'none',fontWeight:600,cursor:'pointer'}}>Buscar</button>
+            </form>
+            <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:'1rem',background:'#f9f9f9',padding:'2rem',borderRadius:8,boxShadow:'0 2px 8px #0001'}}>
+                <label htmlFor="nome">Nome completo:</label>
                 <input 
                     type="text" 
                     name="nome" 
@@ -55,9 +185,10 @@ export default function CadastroPaciente() {
                     value={form.nome} 
                     onChange={handleChange} 
                     required 
+                    style={{padding:'0.5em',borderRadius:4,border:'1px solid #bbb'}}
                 />
 
-                <label>CPF:</label>
+                <label htmlFor="cpf">CPF:</label>
                 <input 
                     type="text"
                     name="cpf" 
@@ -65,9 +196,11 @@ export default function CadastroPaciente() {
                     value={form.cpf} 
                     onChange={handleChange} 
                     required 
+                    style={{padding:'0.5em',borderRadius:4,border:'1px solid #bbb'}}
                 />
 
-                <label>Data de nascimento:</label>
+
+                <label htmlFor="data-nascimento">Data de nascimento:</label>
                 <input 
                     type="date" 
                     name="dataNascimento" 
@@ -75,9 +208,25 @@ export default function CadastroPaciente() {
                     value={form.dataNascimento} 
                     onChange={handleChange} 
                     required 
+                    style={{padding:'0.5em',borderRadius:4,border:'1px solid #bbb'}}
                 />
 
-                <label>Endereço:</label>
+                <label htmlFor="sexo">Sexo:</label>
+                <select
+                    name="sexo"
+                    id="sexo"
+                    value={form.sexo}
+                    onChange={handleChange}
+                    required
+                    style={{padding:'0.5em',borderRadius:4,border:'1px solid #bbb',background:'#fff',color:'#222'}}
+                >
+                    <option value="">Selecione</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                    <option value="O">Outro</option>
+                </select>
+
+                <label htmlFor="endereco">Endereço:</label>
                 <input 
                     type="text" 
                     name="endereco" 
@@ -85,9 +234,10 @@ export default function CadastroPaciente() {
                     value={form.endereco} 
                     onChange={handleChange} 
                     required 
+                    style={{padding:'0.5em',borderRadius:4,border:'1px solid #bbb'}}
                 />
 
-                <label>Telefone:</label>
+                <label htmlFor="telefone">Telefone:</label>
                 <input 
                     type="text" 
                     name="telefone" 
@@ -95,18 +245,22 @@ export default function CadastroPaciente() {
                     value={form.telefone} 
                     onChange={handleChange} 
                     required 
+                    style={{padding:'0.5em',borderRadius:4,border:'1px solid #bbb'}}
                 />
 
                 <label>Prioridade de Atendimento:</label>
-
                 <div className="prioridade">
                     <Prioridade
                         prioridade={form.prioridade}
                         onChange={handlePrioridade}
                     />
                 </div>
-                
-                <button type="submit">Salvar</button>
+                {mensagem && <div className="form-success" style={{color:'#388e3c',background:'#e8f5e9',padding:'0.5em 1em',borderRadius:4}}>{mensagem}</div>}
+                {erro && <div className="form-error" style={{color:'#d32f2f',background:'#ffebee',padding:'0.5em 1em',borderRadius:4}}>{erro}</div>}
+                <div style={{display:'flex',gap:'1rem',marginTop:'0.5rem',justifyContent:'center'}}>
+                    <button type="submit" style={{background:'#1976d2',color:'#fff',border:'none',borderRadius:6,padding:'0.7em 0',fontWeight:600,cursor:'pointer',boxShadow:'0 2px 8px #1976d233',minWidth:180}}>Salvar</button>
+                    <button type="button" onClick={handleIncluirTriagem} style={{background:'#1976d2',color:'#fff',border:'none',borderRadius:6,padding:'0.7em 0',fontWeight:600,cursor:'pointer',boxShadow:'0 2px 8px #1976d233',minWidth:180}}>Incluir na Triagem</button>
+                </div>
             </form>
         </main>
     )

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ListaPacientes from '../../components/ListaPacientes'
-import { getPacientes, deletarPaciente } from '../../utils/dados'
+import { getPacientes } from '../../utils/api'
 
 import './Triagem.css'
 
@@ -11,27 +11,18 @@ export default function Triagem() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        atualizarLista()
-    }, [])
-
+        atualizarLista();
+    }, []);
 
     async function atualizarLista() {
+        // Busca todos os pacientes e filtra os que não têm triagem
         const todos = await getPacientes();
-        const pacientesFiltrados = todos.filter(p => !p.triagem);
-        setPacientes(pacientesFiltrados);
+        const pacientesSemTriagem = todos.filter(p => !p.triagem);
+        setPacientes(pacientesSemTriagem);
     }
 
     function handleSelecionar(id) {
-        const paciente = pacientes.find(p => p.id === id)
-
-        if (!paciente) return
-
-        navigate(`/triagem/${id}`)
-    }
-
-    async function excluirPaciente(id) {
-        await deletarPaciente(id);
-        atualizarLista();
+        navigate(`/triagem/${id}`);
     }
 
     return (
@@ -39,8 +30,7 @@ export default function Triagem() {
             <ListaPacientes
                 pacientes={pacientes}
                 onSelecionar={handleSelecionar}
-                onExcluir={excluirPaciente}
-                titulo="Triagem de Pacientes"
+                titulo="Lista de Espera para Triagem"
             />
         </main>
     )

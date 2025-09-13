@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import Prioridade from "../../components/Prioridade"
-import { getPaciente, atualizarPaciente } from "../../utils/dados"
+import { getPaciente, atualizarPaciente } from "../../utils/api"
 import { calcularIdade } from "../../utils/date"
 
 import './FormTriagem.css'
@@ -78,13 +78,18 @@ export default function FormTriagem() {
             alert('Preencha todos os campos obrigatórios!');
             return;
         }
-        const pacienteAtualizado = {
-            ...paciente,
-            triagem: formTriagem,
-            prioridade: formTriagem.prioridade,
-        };
-        delete pacienteAtualizado.emTriagem;
-        await atualizarPaciente(pacienteAtualizado.id, pacienteAtualizado);
+        // Salva a triagem de forma persistente
+        await import('../../utils/api').then(({ criarTriagem }) =>
+            criarTriagem({
+                pacienteId: paciente.id,
+                prioridade: formTriagem.prioridade,
+                temperatura: formTriagem.temperatura,
+                pressao: formTriagem.pressao,
+                peso: formTriagem.peso,
+                altura: formTriagem.altura,
+                observacao: formTriagem.observacao
+            })
+        );
         salvoRef.current = true;
         alert('Triagem salva com sucesso!');
         navigate('/triagem');

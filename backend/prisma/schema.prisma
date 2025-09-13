@@ -14,6 +14,7 @@ model Paciente {
   nome           String
   cpf            String    @unique
   dataNascimento DateTime
+  sexo           String
   endereco       String
   telefone       String
   prioridade     String

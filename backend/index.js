@@ -8,6 +8,17 @@ require('dotenv').config();
 
 const app = express();
 const prisma = new PrismaClient();
+
+// Buscar paciente por CPF
+app.get('/pacientes/cpf/:cpf', async (req, res) => {
+  try {
+    const paciente = await prisma.paciente.findUnique({ where: { cpf: req.params.cpf } });
+    if (!paciente) return res.status(404).json({ error: 'Paciente não encontrado' });
+    res.json(paciente);
+  } catch {
+    res.status(500).json({ error: 'Erro ao buscar paciente por CPF' });
+  }
+});
 const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(cors());
@@ -49,26 +60,7 @@ app.get('/painel', async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar painel' });
   }
 });
-// Rota de Relatório de Atendimentos
-app.get('/relatorios/atendimentos', async (req, res) => {
-  try {
-    const atendimentos = await prisma.atendimento.findMany();
-    // Agrupar por médico
-    const atendidosPorMedico = {};
-    const pacientesPorPrioridade = {};
-    let totalEspera = 0;
-    let countEspera = 0;
-    for (const a of atendimentos) {
-      if (a.medico) atendidosPorMedico[a.medico] = (atendidosPorMedico[a.medico] || 0) + 1;
-      if (a.prioridade) pacientesPorPrioridade[a.prioridade] = (pacientesPorPrioridade[a.prioridade] || 0) + 1;
-      if (a.tempoEspera) { totalEspera += a.tempoEspera; countEspera++; }
-    }
-    const tempoMedioEspera = countEspera ? Math.round(totalEspera / countEspera) : 0;
-    res.json({ atendidosPorMedico, tempoMedioEspera, pacientesPorPrioridade });
-  } catch {
-    res.status(500).json({ error: 'Erro ao gerar relatório' });
-  }
-});
+// (Bloco removido: estava fora de rota/função e causava erro de await fora de async)
 // Rotas de Atendimento (CRUD)
 app.post('/atendimentos', async (req, res) => {
   try {
@@ -91,10 +83,11 @@ app.get('/atendimentos', async (req, res) => {
     res.status(500).json({ error: 'Erro ao listar atendimentos' });
   }
 });
+// ================== IMPORTS E INICIALIZAÇÃO ==================
 
 app.get('/atendimentos/:id', async (req, res) => {
   try {
-    const atendimento = await prisma.atendimento.findUnique({ where: { id: Number(req.params.id) } });
+    const atendimento = await prisma.atendimento.findUnique({ where: { id: req.params.id } });
     if (!atendimento) return res.status(404).json({ error: 'Atendimento não encontrado' });
     res.json(atendimento);
   } catch {
@@ -106,7 +99,7 @@ app.put('/atendimentos/:id', async (req, res) => {
   try {
     const { medico, descricao, prioridade } = req.body;
     const atendimento = await prisma.atendimento.update({
-      where: { id: Number(req.params.id) },
+      where: { id: req.params.id },
       data: { medico, descricao, prioridade }
     });
     res.json(atendimento);
@@ -228,10 +221,10 @@ app.put('/funcionarios/:id', async (req, res) => {
 // Rotas de Pacientes (CRUD)
 app.post('/pacientes', async (req, res) => {
   try {
-    const { nome, cpf, dataNascimento, sexo } = req.body;
+    const { nome, cpf, dataNascimento, sexo, endereco, telefone, prioridade } = req.body;
     if (!nome || !cpf || !dataNascimento || !sexo) return res.status(400).json({ error: 'Dados obrigatórios' });
     const paciente = await prisma.paciente.create({
-      data: { nome, cpf, dataNascimento, sexo }
+      data: { nome, cpf, dataNascimento, sexo, endereco, telefone, prioridade }
     });
     res.status(201).json(paciente);
   } catch (e) {
@@ -251,7 +244,7 @@ app.get('/pacientes', async (req, res) => {
 
 app.get('/pacientes/:id', async (req, res) => {
   try {
-    const paciente = await prisma.paciente.findUnique({ where: { id: Number(req.params.id) } });
+    const paciente = await prisma.paciente.findUnique({ where: { id: req.params.id } });
     if (!paciente) return res.status(404).json({ error: 'Paciente não encontrado' });
     res.json(paciente);
   } catch {
@@ -263,7 +256,7 @@ app.put('/pacientes/:id', async (req, res) => {
   try {
     const { nome, cpf, dataNascimento, sexo } = req.body;
     const paciente = await prisma.paciente.update({
-      where: { id: Number(req.params.id) },
+      where: { id: req.params.id },
       data: { nome, cpf, dataNascimento, sexo }
     });
     res.json(paciente);
@@ -275,7 +268,7 @@ app.put('/pacientes/:id', async (req, res) => {
 
 app.delete('/pacientes/:id', async (req, res) => {
   try {
-    await prisma.paciente.delete({ where: { id: Number(req.params.id) } });
+    await prisma.paciente.delete({ where: { id: req.params.id } });
     res.status(204).end();
   } catch {
     res.status(500).json({ error: 'Erro ao remover paciente' });
