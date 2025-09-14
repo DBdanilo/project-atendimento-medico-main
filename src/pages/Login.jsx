@@ -18,6 +18,7 @@ export default function Login({ onLogin }) {
       if (onLogin) onLogin(res.nome);
       localStorage.setItem('token', res.token);
       localStorage.setItem('usuarioLogado', res.nome);
+      if (res.id) localStorage.setItem('usuarioId', res.id);
     } catch (err) {
       setError('Usuário ou senha inválidos');
     }

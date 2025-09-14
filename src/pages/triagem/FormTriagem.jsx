@@ -80,8 +80,10 @@ export default function FormTriagem() {
         }
         // Salva a triagem de forma persistente
         await import('../../utils/api').then(async ({ criarTriagem, atualizarPaciente }) => {
+            const funcionarioId = localStorage.getItem('usuarioId');
             await criarTriagem({
                 pacienteId: paciente.id,
+                funcionarioId,
                 prioridade: formTriagem.prioridade,
                 temperatura: parseFloat(formTriagem.temperatura),
                 pressao: formTriagem.pressao,
