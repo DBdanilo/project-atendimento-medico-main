@@ -15,10 +15,10 @@ export default function Triagem() {
     }, []);
 
     async function atualizarLista() {
-        // Busca todos os pacientes e filtra os que não têm triagem
+        // Busca todos os pacientes e filtra os que estão na lista de espera para triagem e ainda não têm triagem
         const todos = await getPacientes();
-        const pacientesSemTriagem = todos.filter(p => !p.triagem);
-        setPacientes(pacientesSemTriagem);
+        const pacientesEmEspera = todos.filter(p => p.listaEsperaTriagem && !p.triagem);
+        setPacientes(pacientesEmEspera);
     }
 
     function handleSelecionar(id) {

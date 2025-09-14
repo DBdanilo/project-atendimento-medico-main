@@ -22,6 +22,7 @@ model Paciente {
   atendimentos   Atendimento[]
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  listaEsperaTriagem Boolean @default(false)
 }
 
 model Funcionario {

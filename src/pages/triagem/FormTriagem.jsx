@@ -79,8 +79,8 @@ export default function FormTriagem() {
             return;
         }
         // Salva a triagem de forma persistente
-        await import('../../utils/api').then(({ criarTriagem }) =>
-            criarTriagem({
+        await import('../../utils/api').then(async ({ criarTriagem, atualizarPaciente }) => {
+            await criarTriagem({
                 pacienteId: paciente.id,
                 prioridade: formTriagem.prioridade,
                 temperatura: formTriagem.temperatura,
@@ -88,8 +88,10 @@ export default function FormTriagem() {
                 peso: formTriagem.peso,
                 altura: formTriagem.altura,
                 observacao: formTriagem.observacao
-            })
-        );
+            });
+            // Atualiza o paciente para remover da lista de espera
+            await atualizarPaciente(paciente.id, { listaEsperaTriagem: false });
+        });
         salvoRef.current = true;
         alert('Triagem salva com sucesso!');
         navigate('/triagem');

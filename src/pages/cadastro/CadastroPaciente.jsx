@@ -41,7 +41,7 @@ export default function CadastroPaciente() {
                     telefone: paciente.telefone || '',
                     prioridade: paciente.prioridade || 'Normal',
                 });
-                setMensagem('Paciente encontrado e carregado no formulário.');
+                setMensagem('Paciente encontrado e carregado no formulário. Você pode clicar em "Incluir na Triagem".');
             } else {
                 setErro('Paciente não encontrado. Preencha os dados para cadastrar.');
             }
@@ -128,23 +128,12 @@ export default function CadastroPaciente() {
                 sexo: form.sexo,
                 endereco: form.endereco,
                 telefone: form.telefone,
-                prioridade: form.prioridade
+                prioridade: form.prioridade,
+                listaEsperaTriagem: true
             };
             // Cadastra o paciente e pega o id
             const paciente = await criarPaciente(pacientePayload);
-            // Cria a triagem para o paciente
-            await import('../../utils/api').then(({ criarTriagem }) =>
-                criarTriagem({
-                    pacienteId: paciente.id,
-                    prioridade: paciente.prioridade,
-                    temperatura: 0,
-                    pressao: '',
-                    peso: 0,
-                    altura: 0,
-                    observacao: ''
-                })
-            );
-            setMensagem('Paciente cadastrado e incluído na triagem!');
+            setMensagem('Paciente cadastrado e incluído na lista de espera para triagem!');
             setForm({
                 nome: '',
                 cpf: '',
