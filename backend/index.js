@@ -44,8 +44,8 @@ app.get('/painel', async (req, res) => {
   try {
     const pacientes = await prisma.paciente.findMany({
       include: {
-        triagem: true,
-        atendimento: true
+        triagens: true,
+        atendimentos: true
       }
     });
     const situacoes = {
@@ -56,9 +56,9 @@ app.get('/painel', async (req, res) => {
       finalizados: 0
     };
     for (const p of pacientes) {
-      if (p.atendimento) {
+      if (p.atendimentos && p.atendimentos.length > 0) {
         situacoes.finalizados++;
-      } else if (p.triagem && !p.atendimento) {
+      } else if (p.triagens && p.triagens.length > 0 && (!p.atendimentos || p.atendimentos.length === 0)) {
         situacoes.aguardando_atendimento++;
       } else if (p.emAtendimento) {
         situacoes.em_atendimento++;
