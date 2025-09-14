@@ -83,10 +83,10 @@ export default function FormTriagem() {
             await criarTriagem({
                 pacienteId: paciente.id,
                 prioridade: formTriagem.prioridade,
-                temperatura: formTriagem.temperatura,
+                temperatura: parseFloat(formTriagem.temperatura),
                 pressao: formTriagem.pressao,
-                peso: formTriagem.peso,
-                altura: formTriagem.altura,
+                peso: parseFloat(formTriagem.peso),
+                altura: parseFloat(formTriagem.altura),
                 observacao: formTriagem.observacao
             });
             // Atualiza o paciente para remover da lista de espera

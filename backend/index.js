@@ -44,8 +44,8 @@ app.get('/painel', async (req, res) => {
   try {
     const pacientes = await prisma.paciente.findMany({
       include: {
-        triagens: true,
-        atendimentos: true
+        triagem: true,
+        atendimento: true
       }
     });
     const situacoes = {
@@ -56,9 +56,9 @@ app.get('/painel', async (req, res) => {
       finalizados: 0
     };
     for (const p of pacientes) {
-      if (p.atendimentos && p.atendimentos.length > 0) {
+      if (p.atendimento) {
         situacoes.finalizados++;
-      } else if (p.triagens && p.triagens.length > 0 && (!p.atendimentos || p.atendimentos.length === 0)) {
+      } else if (p.triagem && !p.atendimento) {
         situacoes.aguardando_atendimento++;
       } else if (p.emAtendimento) {
         situacoes.em_atendimento++;
@@ -123,14 +123,22 @@ app.put('/atendimentos/:id', async (req, res) => {
 // Rotas de Triagem (CRUD)
 app.post('/triagens', async (req, res) => {
   try {
-    const { pacienteId, temperatura, pressao, peso, altura, observacao, prioridade } = req.body;
+    let { pacienteId, temperatura, pressao, peso, altura, observacao, prioridade } = req.body;
     if (!pacienteId || !prioridade) return res.status(400).json({ error: 'Dados obrigatórios' });
+    // Converter para float
+    temperatura = parseFloat(temperatura);
+    peso = parseFloat(peso);
+    altura = parseFloat(altura);
+    if (isNaN(temperatura) || isNaN(peso) || isNaN(altura)) {
+      return res.status(400).json({ error: 'Temperatura, peso e altura devem ser números válidos.' });
+    }
     const triagem = await prisma.triagem.create({
       data: { pacienteId, temperatura, pressao, peso, altura, observacao, prioridade }
     });
     res.status(201).json(triagem);
-  } catch {
-    res.status(500).json({ error: 'Erro ao registrar triagem' });
+  } catch (err) {
+    console.error('Erro detalhado ao registrar triagem:', err);
+    res.status(500).json({ error: 'Erro ao registrar triagem', details: err.message });
   }
 });
 
@@ -145,7 +153,7 @@ app.get('/triagens', async (req, res) => {
 
 app.get('/triagens/:id', async (req, res) => {
   try {
-    const triagem = await prisma.triagem.findUnique({ where: { id: Number(req.params.id) } });
+  const triagem = await prisma.triagem.findUnique({ where: { id: req.params.id } });
     if (!triagem) return res.status(404).json({ error: 'Triagem não encontrada' });
     res.json(triagem);
   } catch {
@@ -157,7 +165,7 @@ app.put('/triagens/:id', async (req, res) => {
   try {
     const { temperatura, pressao, peso, altura, observacao, prioridade } = req.body;
     const triagem = await prisma.triagem.update({
-      where: { id: Number(req.params.id) },
+      where: { id: req.params.id },
       data: { temperatura, pressao, peso, altura, observacao, prioridade }
     });
     res.json(triagem);

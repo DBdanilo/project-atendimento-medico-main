@@ -18,7 +18,7 @@ model Paciente {
   endereco       String
   telefone       String
   prioridade     String
-  triagem        Triagem?
+  triagens       Triagem[]
   atendimentos   Atendimento[]
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -40,7 +40,7 @@ model Funcionario {
 model Triagem {
   id           String     @id @default(uuid())
   paciente     Paciente   @relation(fields: [pacienteId], references: [id])
-  pacienteId   String     @unique
+  pacienteId   String
   funcionario  Funcionario? @relation("FuncionarioTriagens", fields: [funcionarioId], references: [id])
   funcionarioId String?
   temperatura  Float
