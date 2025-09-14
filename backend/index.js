@@ -14,12 +14,21 @@ app.get('/pacientes/cpf/:cpf', async (req, res) => {
   try {
     // Remove pontos e traço do CPF buscado
     const cpfBusca = req.params.cpf.replace(/\D/g, '');
+    console.log('--- Busca de paciente por CPF ---');
+    console.log('CPF recebido:', req.params.cpf);
+    console.log('CPF normalizado:', cpfBusca);
     // Busca todos os pacientes e compara CPF sem formatação
     const pacientes = await prisma.paciente.findMany();
+    console.log('CPFs no banco:', pacientes.map(p => p.cpf));
     const paciente = pacientes.find(p => (p.cpf || '').replace(/\D/g, '') === cpfBusca);
-    if (!paciente) return res.status(404).json({ error: 'Paciente não encontrado' });
+    if (!paciente) {
+      console.log('Paciente não encontrado para o CPF:', cpfBusca);
+      return res.status(404).json({ error: 'Paciente não encontrado' });
+    }
+    console.log('Paciente encontrado:', paciente);
     res.json(paciente);
-  } catch {
+  } catch (err) {
+    console.error('Erro ao buscar paciente por CPF:', err);
     res.status(500).json({ error: 'Erro ao buscar paciente por CPF' });
   }
 });
@@ -225,8 +234,9 @@ app.put('/funcionarios/:id', async (req, res) => {
 // Rotas de Pacientes (CRUD)
 app.post('/pacientes', async (req, res) => {
   try {
-    const { nome, cpf, dataNascimento, sexo, endereco, telefone, prioridade, listaEsperaTriagem } = req.body;
+    let { nome, cpf, dataNascimento, sexo, endereco, telefone, prioridade, listaEsperaTriagem } = req.body;
     if (!nome || !cpf || !dataNascimento || !sexo) return res.status(400).json({ error: 'Dados obrigatórios' });
+    cpf = (cpf || '').replace(/\D/g, '');
     const paciente = await prisma.paciente.create({
       data: { nome, cpf, dataNascimento, sexo, endereco, telefone, prioridade, listaEsperaTriagem: !!listaEsperaTriagem }
     });
@@ -258,10 +268,10 @@ app.get('/pacientes/:id', async (req, res) => {
 
 app.put('/pacientes/:id', async (req, res) => {
   try {
-    const { nome, cpf, dataNascimento, sexo, endereco, telefone, prioridade, listaEsperaTriagem } = req.body;
+    let { nome, cpf, dataNascimento, sexo, endereco, telefone, prioridade, listaEsperaTriagem } = req.body;
     const data = {};
     if (nome !== undefined) data.nome = nome;
-    if (cpf !== undefined) data.cpf = cpf;
+    if (cpf !== undefined) data.cpf = (cpf || '').replace(/\D/g, '');
     if (dataNascimento !== undefined) data.dataNascimento = dataNascimento;
     if (sexo !== undefined) data.sexo = sexo;
     if (endereco !== undefined) data.endereco = endereco;

@@ -24,7 +24,10 @@ export default function CadastroPaciente() {
         setErro("");
         setBuscando(true);
         try {
-            const paciente = await getPacientePorCpf(buscaCpf);
+            // Remove pontos e traço do CPF antes de buscar
+            const cpfBusca = buscaCpf.replace(/\D/g, '');
+            const paciente = await getPacientePorCpf(cpfBusca);
+            console.log('Resposta da API (getPacientePorCpf):', paciente);
             if (paciente) {
                 // Converter data para yyyy-MM-dd se vier em outro formato
                 let dataNascimento = '';
@@ -45,7 +48,8 @@ export default function CadastroPaciente() {
             } else {
                 setErro('Paciente não encontrado. Preencha os dados para cadastrar.');
             }
-        } catch {
+        } catch (err) {
+            console.error('Erro ao buscar paciente por CPF:', err);
             setErro('Paciente não encontrado. Preencha os dados para cadastrar.');
         }
         setBuscando(false);
@@ -113,6 +117,13 @@ export default function CadastroPaciente() {
         setMensagem("");
         setErro("");
         try {
+            // Remove pontos e traço do CPF para busca
+            const cpfBusca = form.cpf.replace(/\D/g, '');
+            let pacienteExistente = null;
+            try {
+                pacienteExistente = await getPacientePorCpf(cpfBusca);
+            } catch {}
+
             // Converter dataNascimento de dd/mm/aaaa para ISO
             let dataISO2 = '';
             if (form.dataNascimento && form.dataNascimento.includes('/')) {
@@ -121,19 +132,28 @@ export default function CadastroPaciente() {
             } else if (form.dataNascimento) {
                 dataISO2 = new Date(form.dataNascimento).toISOString();
             }
-            const pacientePayload = {
-                nome: form.nome,
-                cpf: form.cpf,
-                dataNascimento: dataISO2,
-                sexo: form.sexo,
-                endereco: form.endereco,
-                telefone: form.telefone,
-                prioridade: form.prioridade,
-                listaEsperaTriagem: true
-            };
-            // Cadastra o paciente e pega o id
-            const paciente = await criarPaciente(pacientePayload);
-            setMensagem('Paciente cadastrado e incluído na lista de espera para triagem!');
+
+            if (pacienteExistente && pacienteExistente.id) {
+                // Apenas atualizar listaEsperaTriagem para true
+                await import('../../utils/api').then(({ atualizarPaciente }) =>
+                    atualizarPaciente(pacienteExistente.id, { listaEsperaTriagem: true })
+                );
+                setMensagem('Paciente incluído na lista de espera para triagem!');
+            } else {
+                // Cadastrar novo paciente normalmente
+                const pacientePayload = {
+                    nome: form.nome,
+                    cpf: form.cpf,
+                    dataNascimento: dataISO2,
+                    sexo: form.sexo,
+                    endereco: form.endereco,
+                    telefone: form.telefone,
+                    prioridade: form.prioridade,
+                    listaEsperaTriagem: true
+                };
+                await criarPaciente(pacientePayload);
+                setMensagem('Paciente cadastrado e incluído na lista de espera para triagem!');
+            }
             setForm({
                 nome: '',
                 cpf: '',

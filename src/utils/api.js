@@ -2,9 +2,7 @@
 export const getPacientePorCpf = (cpf) => api.get(`/pacientes/cpf/${cpf}`).then(res => res.data);
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: 'http://localhost:3001',
-});
+const api = axios.create({});
 
 // Pacientes
 export const getPacientes = () => api.get('/pacientes').then(res => res.data);
