@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ListaPacientes from '../../components/ListaPacientes'
-import { getPacientes, deletarPaciente } from '../../utils/dados'
+import { getPacientes } from '../../utils/api'
 
 import './Atendimento.css'
 
@@ -14,10 +14,11 @@ export default function Atendimento() {
         atualizarLista()
     }, [])
 
-    function atualizarLista() {
-        const pacientesFiltrados = getPacientes().filter(p => p.triagem && !p.atendimento)
-
-        setPacientes(pacientesFiltrados)
+    async function atualizarLista() {
+        // Busca pacientes que já têm triagem (ou triagens) e ainda não têm atendimento
+        const todos = await getPacientes();
+        const pacientesEmEspera = todos.filter(p => (p.triagens && p.triagens.length > 0) && (!p.atendimentos || p.atendimentos.length === 0));
+        setPacientes(pacientesEmEspera);
     }
 
     function handleSelecionar(id) {
@@ -28,18 +29,13 @@ export default function Atendimento() {
         navigate(`/atendimento/${id}`)
     }
 
-    function excluirPaciente(id) {
-        deletarPaciente(id)
 
-        atualizarLista()
-    }
 
     return (
         <main className="atendimento">
             <ListaPacientes
                 pacientes={pacientes}
                 onSelecionar={handleSelecionar}
-                onExcluir={excluirPaciente}
                 titulo="Atendimento Médico"
             />
         </main>

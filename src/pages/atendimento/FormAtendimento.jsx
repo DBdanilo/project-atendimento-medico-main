@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getPaciente, atualizarPaciente } from '../../utils/dados'
+import { getPaciente } from '../../utils/api'
+import { criarAtendimento } from '../../utils/api'
 import { calcularIdade, calcularIMC } from '../../utils/date'
 
 import './FormAtendimento.css'
@@ -24,28 +26,24 @@ export default function FormAtendimento() {
             const pacienteAtendimento = await getPaciente(id);
             if (!pacienteAtendimento) return;
             setPaciente(pacienteAtendimento);
-            if (!pacienteAtendimento.emAtendimento && !salvoRef.current) {
-                pacienteAtendimento.emAtendimento = true;
-                await atualizarPaciente(pacienteAtendimento.id, pacienteAtendimento);
-            }
         }
         fetchPaciente();
         return () => {};
     }, [id]);
 
+    // Seleciona a última triagem do paciente (se houver)
+    const ultimaTriagem = useMemo(() => {
+        if (!paciente.triagens || paciente.triagens.length === 0) return null;
+        // Ordena por createdAt desc
+        return [...paciente.triagens].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    }, [paciente.triagens]);
+
     useEffect(() => {
-        if (!paciente?.id) return;
-        const handleBeforeUnload = async (event) => {
-            if (salvoRef.current) return;
-            event.preventDefault();
-            event.returnValue = "";
-            const pacienteAtualizado = { ...paciente, emAtendimento: false };
-            await atualizarPaciente(pacienteAtualizado.id, pacienteAtualizado);
-        };
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        return () => {
-            window.removeEventListener("beforeunload", handleBeforeUnload);
-        };
+        // Removeu lógica de emAtendimento, pois não é mais necessário
+        // para o novo fluxo via API
+        // Mantém apenas o fetchPaciente
+        // (Se desejar lógica de bloqueio, implementar via backend)
+        return () => {};
     }, [paciente]);
 
     function handleChange(e) {
@@ -60,12 +58,17 @@ export default function FormAtendimento() {
             alert('Preencha todos os campos');
             return;
         }
-        const pacienteAtualizado = {
-            ...paciente,
-            atendimento: formAtendimento,
-        };
-        delete pacienteAtualizado.emAtendimento;
-        await atualizarPaciente(pacienteAtualizado.id, pacienteAtualizado);
+        // Salva o atendimento via API, incluindo funcionarioId
+        const funcionarioId = localStorage.getItem('usuarioId');
+        await criarAtendimento({
+            pacienteId: paciente.id,
+            funcionarioId,
+            motivo: formAtendimento.motivo,
+            diagnostico: formAtendimento.diagnostico,
+            prescricao: formAtendimento.prescricao,
+            observacao: formAtendimento.observacao,
+            prioridade: paciente.prioridade || 'Normal'
+        });
         salvoRef.current = true;
         alert('Atendimento salvo com sucesso!');
         navigate('/atendimento');
@@ -73,12 +76,6 @@ export default function FormAtendimento() {
     }
 
     async function handleVoltar() {
-        const pacienteAtualizado = {
-            ...paciente,
-            atendimento: undefined,
-            emAtendimento: false,
-        };
-        await atualizarPaciente(pacienteAtualizado.id, pacienteAtualizado);
         navigate('/atendimento');
     }
 
@@ -91,9 +88,10 @@ export default function FormAtendimento() {
             <div className='paciente-info'>
                 <div><b>Nome:</b> {paciente.nome}</div>
                 <div><b>Idade:</b> {calcularIdade(paciente.dataNascimento)}</div>
-                <div><b>Temperatura:</b> {paciente.triagem?.temperatura || ''}</div>
-                <div><b>Pressão:</b> {paciente.triagem?.pressao || ''}</div>
-                <div><b>IMC:</b> {calcularIMC(paciente.triagem.peso, paciente.triagem.altura)}</div>
+                <div><b>Temperatura:</b> {ultimaTriagem?.temperatura ?? ''}</div>
+                <div><b>Pressão:</b> {ultimaTriagem?.pressao ?? ''}</div>
+                <div><b>IMC:</b> {ultimaTriagem ? calcularIMC(ultimaTriagem.peso, ultimaTriagem.altura) : ''}</div>
+                {ultimaTriagem && <div><b>Data da Triagem:</b> {new Date(ultimaTriagem.createdAt).toLocaleString()}</div>}
             </div>
 
             <form onSubmit={handleSubmit} autoComplete="off">

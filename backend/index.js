@@ -77,13 +77,24 @@ app.get('/painel', async (req, res) => {
 // Rotas de Atendimento (CRUD)
 app.post('/atendimentos', async (req, res) => {
   try {
-    const { pacienteId, medico, descricao, prioridade } = req.body;
-    if (!pacienteId || !medico || !descricao || !prioridade) return res.status(400).json({ error: 'Dados obrigatórios' });
+    const { pacienteId, funcionarioId, motivo, diagnostico, prescricao, observacao, prioridade } = req.body;
+    if (!pacienteId || !funcionarioId || !motivo || !diagnostico || !prescricao || !prioridade) {
+      return res.status(400).json({ error: 'Dados obrigatórios' });
+    }
     const atendimento = await prisma.atendimento.create({
-      data: { pacienteId, medico, descricao, prioridade }
+      data: {
+        pacienteId,
+        funcionarioId,
+        motivo,
+        diagnostico,
+        prescricao,
+        observacao: observacao || null,
+        prioridade
+      }
     });
     res.status(201).json(atendimento);
-  } catch {
+  } catch (err) {
+    console.error('Erro ao registrar atendimento:', err);
     res.status(500).json({ error: 'Erro ao registrar atendimento' });
   }
 });
@@ -123,7 +134,7 @@ app.put('/atendimentos/:id', async (req, res) => {
 // Rotas de Triagem (CRUD)
 app.post('/triagens', async (req, res) => {
   try {
-    let { pacienteId, temperatura, pressao, peso, altura, observacao, prioridade } = req.body;
+    let { pacienteId, funcionarioId, temperatura, pressao, peso, altura, observacao, prioridade } = req.body;
     if (!pacienteId || !prioridade) return res.status(400).json({ error: 'Dados obrigatórios' });
     // Converter para float
     temperatura = parseFloat(temperatura);
@@ -132,9 +143,11 @@ app.post('/triagens', async (req, res) => {
     if (isNaN(temperatura) || isNaN(peso) || isNaN(altura)) {
       return res.status(400).json({ error: 'Temperatura, peso e altura devem ser números válidos.' });
     }
-    const triagem = await prisma.triagem.create({
-      data: { pacienteId, temperatura, pressao, peso, altura, observacao, prioridade }
-    });
+    const data = { pacienteId, temperatura, pressao, peso, altura, observacao, prioridade };
+    if (funcionarioId && typeof funcionarioId === 'string' && funcionarioId.trim().length > 0) {
+      data.funcionarioId = funcionarioId;
+    }
+    const triagem = await prisma.triagem.create({ data });
     res.status(201).json(triagem);
   } catch (err) {
     console.error('Erro detalhado ao registrar triagem:', err);
@@ -181,7 +194,7 @@ app.post('/login', async (req, res) => {
     return res.status(401).json({ error: 'Credenciais inválidas' });
   }
   const token = jwt.sign({ id: user.id, perfil: user.perfil }, JWT_SECRET, { expiresIn: '8h' });
-  res.json({ token, nome: user.nome, perfil: user.perfil });
+  res.json({ token, nome: user.nome, perfil: user.perfil, id: user.id });
 });
 
 // Rotas de Funcionários (CRUD)
@@ -257,7 +270,9 @@ app.post('/pacientes', async (req, res) => {
 
 app.get('/pacientes', async (req, res) => {
   try {
-    const pacientes = await prisma.paciente.findMany();
+    const pacientes = await prisma.paciente.findMany({
+      include: { triagens: true, atendimentos: true }
+    });
     res.json(pacientes);
   } catch {
     res.status(500).json({ error: 'Erro ao listar pacientes' });

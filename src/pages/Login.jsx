@@ -15,10 +15,16 @@ export default function Login({ onLogin }) {
     try {
       // Aqui username é o CPF
       const res = await login(username, password);
+      console.log('Login response:', res);
       if (onLogin) onLogin(res.nome);
       localStorage.setItem('token', res.token);
       localStorage.setItem('usuarioLogado', res.nome);
-      if (res.id) localStorage.setItem('usuarioId', res.id);
+      if (res.id) {
+        localStorage.setItem('usuarioId', res.id);
+        console.log('usuarioId salvo no localStorage:', res.id);
+      } else {
+        console.warn('Campo id não retornado do backend!');
+      }
     } catch (err) {
       setError('Usuário ou senha inválidos');
     }
