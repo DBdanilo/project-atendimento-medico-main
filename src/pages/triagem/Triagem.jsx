@@ -17,7 +17,7 @@ export default function Triagem() {
     async function atualizarLista() {
         // Busca todos os pacientes e filtra os que estão na lista de espera para triagem e ainda não têm nenhuma triagem
         const todos = await getPacientes();
-        const pacientesEmEspera = todos.filter(p => p.listaEsperaTriagem && (!p.triagens || p.triagens.length === 0));
+    const pacientesEmEspera = todos.filter(p => p.listaEsperaTriagem);
         setPacientes(pacientesEmEspera);
     }
 

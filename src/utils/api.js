@@ -1,5 +1,6 @@
 // Buscar paciente por CPF
 export const getPacientePorCpf = (cpf) => api.get(`/pacientes/cpf/${cpf}`).then(res => res.data);
+
 import axios from 'axios';
 
 const api = axios.create({});
