@@ -1,1 +1,0 @@
-Este diretório contém um backup da estrutura antiga do projeto antes da reorganização para evitar erros de caminho duplicado.
