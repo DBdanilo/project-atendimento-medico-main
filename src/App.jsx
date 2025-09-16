@@ -12,7 +12,7 @@ import FormAtendimento from './pages/atendimento/FormAtendimento';
 import PainelSituacao from './pages/painel/PainelSituacao';
 import Funcionario from './pages/funcionario/Funcionario';
 import Relatorio from './pages/relatorio/Relatorio';
-import Login from './pages/Login';
+import Login from './pages/login/Login';
 import './App.css';
 import { useState, useEffect } from 'react';
 
