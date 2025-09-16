@@ -1,3 +1,25 @@
+.btn-cadastro {
+    min-width: 180px !important;
+    max-width: 220px !important;
+    padding: 0.7em 0 !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px #1976d233 !important;
+    background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%) !important;
+    color: #fff !important;
+    border: none !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 0.5rem !important;
+    font-size: 1.08em !important;
+    cursor: pointer !important;
+    transition: background 0.2s, box-shadow 0.2s !important;
+}
+.btn-cadastro:hover {
+    background: linear-gradient(90deg, #125ea2 60%, #1976d2 100%) !important;
+    box-shadow: 0 4px 16px #1976d233 !important;
+}
 @import '../../index.css';
 
 

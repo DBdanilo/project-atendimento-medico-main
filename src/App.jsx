@@ -42,7 +42,7 @@ function App() {
     return (
         <BrowserRouter>
             <Header />
-            <button style={{position:'absolute',top:10,right:10}} onClick={handleLogout}>Sair</button>
+            <button className="form-btn btn-sair" style={{position:'absolute',top:10,right:10}} onClick={handleLogout}>Sair</button>
             <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path='/cadastro' element={<CadastroPaciente />} />

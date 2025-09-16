@@ -1,3 +1,70 @@
+button.urgente {
+    background: linear-gradient(90deg, #e53935 60%, #ff5252 100%);
+    color: #444;
+    border: 2px solid #e53935;
+    font-weight: 700;
+    border-radius: 8px;
+    min-width: 120px;
+    padding: 0.7em 1.1em;
+    font-size: 1.05em;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px #e5393522;
+}
+
+button.urgente.ativo {
+    border: 2.5px solid #b71c1c;
+    box-shadow: 0 4px 16px #e5393533;
+}
+
+button.urgente:hover {
+    background: linear-gradient(90deg, #b71c1c 60%, #e53935 100%);
+    box-shadow: 0 4px 16px #e5393533;
+}
+
+button.moderado {
+    background: linear-gradient(90deg, #ffd600 60%, #ffe082 100%);
+    color: #444;
+    border: 2px solid #ffd600;
+    font-weight: 700;
+    border-radius: 8px;
+    min-width: 120px;
+    padding: 0.7em 1.1em;
+    font-size: 1.05em;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px #ffd60022;
+}
+
+button.moderado.ativo {
+    border: 2.5px solid #ffab00;
+    box-shadow: 0 4px 16px #ffd60033;
+}
+
+button.moderado:hover {
+    background: linear-gradient(90deg, #ffab00 60%, #ffd600 100%);
+    box-shadow: 0 4px 16px #ffd60033;
+}
+button.normal {
+    background: linear-gradient(90deg, #43ea7a 60%, #2dbd6e 100%);
+    color: #444;
+    border: 2px solid #2dbd6e;
+    font-weight: 700;
+    border-radius: 8px;
+    min-width: 120px;
+    padding: 0.7em 1.1em;
+    font-size: 1.05em;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px #2dbd6e22;
+}
+
+button.normal.ativo {
+    border: 2.5px solid #1e8c4a;
+    box-shadow: 0 4px 16px #2dbd6e33;
+}
+
+button.normal:hover {
+    background: linear-gradient(90deg, #2dbd6e 60%, #43ea7a 100%);
+    box-shadow: 0 4px 16px #2dbd6e33;
+}
 ul.selecao-prioridade {
     display: flex;
     align-items: center;

@@ -267,8 +267,8 @@ export default function CadastroPaciente() {
                 {mensagem && <div className="form-success" style={{color:'#388e3c',background:'#e8f5e9',padding:'0.5em 1em',borderRadius:4}}>{mensagem}</div>}
                 {erro && <div className="form-error" style={{color:'#d32f2f',background:'#ffebee',padding:'0.5em 1em',borderRadius:4}}>{erro}</div>}
                 <div style={{display:'flex',gap:'1rem',marginTop:'0.5rem',justifyContent:'center'}}>
-                    <button type="submit" style={{background:'#1976d2',color:'#fff',border:'none',borderRadius:6,padding:'0.7em 0',fontWeight:600,cursor:'pointer',boxShadow:'0 2px 8px #1976d233',minWidth:180}}>Salvar</button>
-                    <button type="button" onClick={handleIncluirTriagem} style={{background:'#1976d2',color:'#fff',border:'none',borderRadius:6,padding:'0.7em 0',fontWeight:600,cursor:'pointer',boxShadow:'0 2px 8px #1976d233',minWidth:180}}>Incluir na Triagem</button>
+                    <button type="submit" className="btn-cadastro">Salvar</button>
+                    <button type="button" className="btn-cadastro" onClick={handleIncluirTriagem}>Incluir na Triagem</button>
                 </div>
             </form>
         </main>
