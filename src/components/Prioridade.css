@@ -4,7 +4,7 @@ button.urgente {
     border: 2px solid #e53935;
     font-weight: 700;
     border-radius: 8px;
-    width: 140px;
+    width: 180px;
     padding: 0.7em 1.1em;
     font-size: 1.05em;
     transition: background 0.2s, box-shadow 0.2s;
@@ -27,7 +27,7 @@ button.moderado {
     border: 2px solid #ffd600;
     font-weight: 700;
     border-radius: 8px;
-    width: 140px;
+    width: 180px;
     padding: 0.7em 1.1em;
     font-size: 1.05em;
     transition: background 0.2s, box-shadow 0.2s;
@@ -49,7 +49,7 @@ button.normal {
     border: 2px solid #2dbd6e;
     font-weight: 700;
     border-radius: 8px;
-    width: 140px;
+    width: 180px;
     padding: 0.7em 1.1em;
     font-size: 1.05em;
     transition: background 0.2s, box-shadow 0.2s;

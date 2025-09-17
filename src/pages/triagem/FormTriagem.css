@@ -44,6 +44,24 @@
     flex-wrap: wrap;
     gap: 1.2rem;
     justify-content: space-between;
+    .reclassificar-btn {
+        min-width: 180px !important;
+        max-width: 220px !important;
+        padding: 0.7em 0 !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        box-shadow: 0 2px 8px #1976d233 !important;
+        background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%) !important;
+        color: #fff !important;
+        border: none !important;
+        display: block !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        margin-top: 0.5rem !important;
+        font-size: 1.08em !important;
+        cursor: pointer !important;
+        transition: background 0.2s, box-shadow 0.2s !important;
+    }
     align-items: center;
     font-size: 1.08em;
     font-weight: 600;
@@ -175,18 +193,21 @@
     padding: 0;
 
     width: 100%;
-    gap: 0.4rem;
+    gap: 1.2rem;
     display: flex;
+    flex-direction: row;
     justify-content: center;
-
-    margin-bottom: 3rem;
+    align-items: center;
+    margin-bottom: 2rem;
 }
 
 .selecao-prioridade li {
-    flex: 1 1 140px;
-    min-width: 120px;
+    flex: 0 1 auto;
+    min-width: 180px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     gap: 0.4rem;
 }
 
@@ -222,6 +243,12 @@
     box-shadow: 0 4px 16px #1976d233 !important;
     outline: none;
 }
+    .reclassificar-btn:hover,
+    .reclassificar-btn:focus {
+        background: linear-gradient(90deg, #125ea2 60%, #1976d2 100%) !important;
+        box-shadow: 0 4px 16px #1976d233 !important;
+        outline: none;
+    }
 
 .cancelar-btn-triagem {
     min-width: 180px !important;
