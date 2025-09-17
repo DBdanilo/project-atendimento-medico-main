@@ -11,6 +11,7 @@ export default function Relatorio() {
   const [ultimaAtualizacao, setUltimaAtualizacao] = useState(null);
   const [proximaAtualizacao, setProximaAtualizacao] = useState(null);
   const [autoUpdate, setAutoUpdate] = useState(true);
+  const [gerandoPDF, setGerandoPDF] = useState(false);
 
   // Função para buscar dados do dashboard consolidado
   const buscarDashboard = useCallback(async () => {
@@ -150,135 +151,157 @@ export default function Relatorio() {
   };
 
   const exportarPDF = (dados, nomeArquivo, tipo) => {
-    const doc = new jsPDF();
-    const dataAtual = new Date().toLocaleDateString('pt-BR');
-    
-    // Configuração do cabeçalho
-    doc.setFontSize(20);
-    doc.text('Hospital - Relatório Gerencial', 20, 20);
-    doc.setFontSize(12);
-    doc.text(`Data: ${dataAtual}`, 20, 30);
-    doc.text(`Tipo: ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`, 20, 40);
-    
-    let yPosition = 60;
-    
-    if (tipo === 'tempo-medio') {
-      doc.setFontSize(16);
-      doc.text('Tempo Médio de Atendimento', 20, yPosition);
-      yPosition += 20;
+    try {
+      console.log('=== EXPORTAR PDF ===');
+      console.log('Tipo:', tipo);
+      console.log('Dados:', dados);
       
-      doc.setFontSize(12);
-      doc.text(`Tempo Médio Geral: ${dados.tempoMedioGeral}`, 20, yPosition);
-      yPosition += 10;
-      doc.text(`Total de Atendimentos: ${dados.totalAtendimentos}`, 20, yPosition);
-      yPosition += 20;
+      setGerandoPDF(true);
       
-      // Tabela de tempos por prioridade
-      const tableData = Object.entries(dados.tempoMedioPorPrioridade).map(([prioridade, tempo]) => [
-        prioridade, `${tempo} minutos`
-      ]);
+      if (!dados) {
+        throw new Error('Dados não encontrados para geração do PDF');
+      }
+
+      // Criar documento PDF
+      const doc = new jsPDF();
+      const dataAtual = new Date().toLocaleDateString('pt-BR');
+      const horaAtual = new Date().toLocaleTimeString('pt-BR');
       
-      doc.autoTable({
-        head: [['Prioridade', 'Tempo Médio']],
-        body: tableData,
-        startY: yPosition,
-        theme: 'grid'
-      });
+      // Cabeçalho profissional
+      doc.setFontSize(18);
+      doc.setTextColor(37, 99, 235); // Azul do projeto
+      doc.text('Sistema Hospitalar - Relatório Gerencial', 20, 20);
       
-    } else if (tipo === 'picos-demanda') {
-      doc.setFontSize(16);
-      doc.text('Picos de Demanda por Horário', 20, yPosition);
-      yPosition += 20;
+      doc.setFontSize(10);
+      doc.setTextColor(75, 85, 99);
+      doc.text(`Gerado em: ${dataAtual} às ${horaAtual}`, 20, 30);
+      doc.text(`Relatório: ${tipo.charAt(0).toUpperCase() + tipo.slice(1).replace('-', ' ')}`, 20, 36);
       
-      doc.setFontSize(12);
-      doc.text(`Horário de Pico: ${dados.picoHorario}`, 20, yPosition);
-      yPosition += 10;
-      doc.text(`Total no Pico: ${dados.totalPico}`, 20, yPosition);
-      yPosition += 20;
+      // Linha separadora
+      doc.setDrawColor(37, 99, 235);
+      doc.line(20, 42, 190, 42);
       
-      // Tabela top 10 horários
-      const tableData = Object.entries(dados.demandaPorHora)
-        .sort(([,a], [,b]) => b.total - a.total)
-        .slice(0, 10)
-        .map(([hora, info]) => [
-          `${hora}:00-${parseInt(hora)+1}:00`,
-          info.triagens.toString(),
-          info.atendimentos.toString(),
-          info.total.toString()
-        ]);
+      let yPosition = 55;
+      doc.setTextColor(0, 0, 0);
       
-      doc.autoTable({
-        head: [['Horário', 'Triagens', 'Atendimentos', 'Total']],
-        body: tableData,
-        startY: yPosition,
-        theme: 'grid'
-      });
+      // Processamento por tipo de relatório
+      if (tipo === 'tempo-medio') {
+        doc.setFontSize(14);
+        doc.text('Análise de Tempo Médio de Atendimento', 20, yPosition);
+        yPosition += 15;
+        
+        doc.setFontSize(11);
+        doc.text(`Tempo Médio Geral: ${dados.tempoMedioGeral || 'N/A'}`, 20, yPosition);
+        yPosition += 8;
+        doc.text(`Total de Atendimentos: ${dados.totalAtendimentos || 0}`, 20, yPosition);
+        yPosition += 15;
+        
+        if (dados.tempoMedioPorPrioridade && Object.keys(dados.tempoMedioPorPrioridade).length > 0) {
+          doc.text('Tempo Médio por Prioridade:', 20, yPosition);
+          yPosition += 10;
+          
+          Object.entries(dados.tempoMedioPorPrioridade).forEach(([prioridade, tempo]) => {
+            doc.text(`• ${prioridade}: ${tempo} minutos`, 30, yPosition);
+            yPosition += 8;
+          });
+        }
+        
+      } else if (tipo === 'picos-demanda') {
+        doc.setFontSize(14);
+        doc.text('Análise de Picos de Demanda', 20, yPosition);
+        yPosition += 15;
+        
+        doc.setFontSize(11);
+        doc.text(`Horário de Maior Demanda: ${dados.picoHorario || 'N/A'}`, 20, yPosition);
+        yPosition += 8;
+        doc.text(`Pico de Atendimentos: ${dados.totalPico || 0}`, 20, yPosition);
+        yPosition += 15;
+        
+        if (dados.demandaPorHora && Object.keys(dados.demandaPorHora).length > 0) {
+          doc.text('Top 10 Horários com Maior Demanda:', 20, yPosition);
+          yPosition += 10;
+          
+          const sortedHours = Object.entries(dados.demandaPorHora)
+            .sort(([,a], [,b]) => (b.total || 0) - (a.total || 0))
+            .slice(0, 10);
+          
+          sortedHours.forEach(([hora, info], index) => {
+            doc.text(`${index + 1}. ${hora}:00-${parseInt(hora)+1}:00 - Total: ${info.total || 0}`, 30, yPosition);
+            yPosition += 8;
+          });
+        }
+        
+      } else if (tipo === 'faixa-etaria') {
+        doc.setFontSize(14);
+        doc.text('Análise por Faixa Etária', 20, yPosition);
+        yPosition += 15;
+        
+        if (dados && Object.keys(dados).length > 0) {
+          Object.entries(dados).forEach(([faixa, info]) => {
+            const faixaCapitalizada = faixa.charAt(0).toUpperCase() + faixa.slice(1);
+            doc.text(`• ${faixaCapitalizada}:`, 30, yPosition);
+            yPosition += 8;
+            doc.text(`  Masculino: ${info.masculino || 0} | Feminino: ${info.feminino || 0} | Total: ${info.total || 0}`, 35, yPosition);
+            yPosition += 12;
+          });
+        }
+        
+      } else if (tipo === 'diagnosticos') {
+        doc.setFontSize(14);
+        doc.text('Diagnósticos Mais Comuns', 20, yPosition);
+        yPosition += 15;
+        
+        doc.setFontSize(11);
+        doc.text(`Total de Atendimentos: ${dados.totalAtendimentos || 0}`, 20, yPosition);
+        yPosition += 15;
+        
+        if (dados.top10Diagnosticos && dados.top10Diagnosticos.length > 0) {
+          doc.text('Top 10 Diagnósticos:', 20, yPosition);
+          yPosition += 10;
+          
+          dados.top10Diagnosticos.forEach((item, index) => {
+            doc.text(`${index + 1}. ${item.diagnostico || 'N/A'} - ${item.count || 0} casos`, 30, yPosition);
+            yPosition += 8;
+          });
+        }
+        
+      } else if (tipo === 'prescricoes') {
+        doc.setFontSize(14);
+        doc.text('Prescrições Mais Utilizadas', 20, yPosition);
+        yPosition += 15;
+        
+        doc.setFontSize(11);
+        doc.text(`Total de Prescrições: ${dados.totalPrescricoes || 0}`, 20, yPosition);
+        yPosition += 15;
+        
+        if (dados.top10Prescricoes && dados.top10Prescricoes.length > 0) {
+          doc.text('Top 10 Prescrições:', 20, yPosition);
+          yPosition += 10;
+          
+          dados.top10Prescricoes.forEach((item, index) => {
+            doc.text(`${index + 1}. ${item.prescricao || 'N/A'} - ${item.count || 0} vezes`, 30, yPosition);
+            yPosition += 8;
+          });
+        }
+      }
       
-    } else if (tipo === 'faixa-etaria') {
-      doc.setFontSize(16);
-      doc.text('Análise por Faixa Etária', 20, yPosition);
-      yPosition += 20;
+      // Rodapé
+      doc.setFontSize(8);
+      doc.setTextColor(128, 128, 128);
+      doc.text('Sistema de Gestão Hospitalar', 20, 285);
+      doc.text(`Página 1 de 1`, 170, 285);
       
-      const tableData = Object.entries(dados).map(([faixa, info]) => [
-        faixa.charAt(0).toUpperCase() + faixa.slice(1),
-        info.masculino.toString(),
-        info.feminino.toString(),
-        info.total.toString()
-      ]);
+      // Salvar PDF
+      const nomeCompleto = `${nomeArquivo}-${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(nomeCompleto);
+      console.log(`PDF gerado com sucesso: ${nomeCompleto}`);
       
-      doc.autoTable({
-        head: [['Faixa Etária', 'Masculino', 'Feminino', 'Total']],
-        body: tableData,
-        startY: yPosition,
-        theme: 'grid'
-      });
-      
-    } else if (tipo === 'diagnosticos') {
-      doc.setFontSize(16);
-      doc.text('Diagnósticos Mais Comuns', 20, yPosition);
-      yPosition += 20;
-      
-      doc.setFontSize(12);
-      doc.text(`Total de Atendimentos: ${dados.totalAtendimentos}`, 20, yPosition);
-      yPosition += 20;
-      
-      const tableData = dados.top10Diagnosticos.map((item, index) => [
-        (index + 1).toString(),
-        item.diagnostico,
-        item.count.toString()
-      ]);
-      
-      doc.autoTable({
-        head: [['Posição', 'Diagnóstico', 'Quantidade']],
-        body: tableData,
-        startY: yPosition,
-        theme: 'grid'
-      });
-      
-    } else if (tipo === 'prescricoes') {
-      doc.setFontSize(16);
-      doc.text('Prescrições Mais Utilizadas', 20, yPosition);
-      yPosition += 20;
-      
-      doc.setFontSize(12);
-      doc.text(`Total de Prescrições: ${dados.totalPrescricoes}`, 20, yPosition);
-      yPosition += 20;
-      
-      const tableData = dados.top10Prescricoes.map((item, index) => [
-        (index + 1).toString(),
-        item.prescricao,
-        item.count.toString()
-      ]);
-      
-      doc.autoTable({
-        head: [['Posição', 'Prescrição', 'Quantidade']],
-        body: tableData,
-        startY: yPosition,
-        theme: 'grid'
-      });
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      alert(`Erro ao gerar PDF: ${error.message}`);
+    } finally {
+      setGerandoPDF(false);
     }
-    
-    doc.save(`${nomeArquivo}-${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const formatarHorario = (data) => {
@@ -393,8 +416,9 @@ export default function Relatorio() {
                 <button 
                   onClick={() => exportarPDF(dashboard.tempoMedio, 'tempo-medio-atendimento', 'tempo-medio')}
                   className="btn-relatorio btn-export-pdf"
+                  disabled={gerandoPDF}
                 >
-                  📄 PDF
+                  {gerandoPDF ? '⏳ Gerando...' : '📄 PDF'}
                 </button>
               </div>
             </div>
@@ -446,8 +470,9 @@ export default function Relatorio() {
                 <button 
                   onClick={() => exportarPDF(dashboard.picosDemanda, 'picos-demanda', 'picos-demanda')}
                   className="btn-relatorio btn-export-pdf"
+                  disabled={gerandoPDF}
                 >
-                  📄 PDF
+                  {gerandoPDF ? '⏳ Gerando...' : '📄 PDF'}
                 </button>
               </div>
             </div>
@@ -487,8 +512,9 @@ export default function Relatorio() {
                 <button 
                   onClick={() => exportarPDF(dashboard.faixaEtaria, 'faixa-etaria', 'faixa-etaria')}
                   className="btn-relatorio btn-export-pdf"
+                  disabled={gerandoPDF}
                 >
-                  📄 PDF
+                  {gerandoPDF ? '⏳ Gerando...' : '📄 PDF'}
                 </button>
               </div>
             </div>
@@ -534,8 +560,9 @@ export default function Relatorio() {
                 <button 
                   onClick={() => exportarPDF(dashboard.diagnosticos, 'diagnosticos-comuns', 'diagnosticos')}
                   className="btn-relatorio btn-export-pdf"
+                  disabled={gerandoPDF}
                 >
-                  📄 PDF
+                  {gerandoPDF ? '⏳ Gerando...' : '📄 PDF'}
                 </button>
               </div>
             </div>
@@ -581,8 +608,9 @@ export default function Relatorio() {
                 <button 
                   onClick={() => exportarPDF(dashboard.prescricoes, 'prescricoes-utilizadas', 'prescricoes')}
                   className="btn-relatorio btn-export-pdf"
+                  disabled={gerandoPDF}
                 >
-                  📄 PDF
+                  {gerandoPDF ? '⏳ Gerando...' : '📄 PDF'}
                 </button>
               </div>
             </div>
