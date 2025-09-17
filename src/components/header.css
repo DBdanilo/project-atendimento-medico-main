@@ -1,3 +1,44 @@
+/* Bloco visual para nome e perfil do usuário logado */
+.header-user-info {
+    position: absolute;
+    top: 18px;
+    right: 120px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    background: transparent;
+}
+.user-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+    background: linear-gradient(90deg, #e3e9f6 0%, #fafdff 100%);
+    border-radius: 18px;
+    box-shadow: 0 2px 8px #1976d233;
+    padding: 0.35em 1.2em;
+    font-size: 1.08em;
+    font-weight: 600;
+    color: #1976d2;
+    border: 1.5px solid #1976d2;
+    letter-spacing: 0.5px;
+}
+.user-name {
+    font-weight: 700;
+    color: #1976d2;
+}
+.user-sep {
+    color: #aaa;
+    font-weight: 400;
+    font-size: 1em;
+}
+.user-perfil {
+    font-weight: 600;
+    color: #2563eb;
+    background: #e3e9f6;
+    border-radius: 8px;
+    padding: 0.1em 0.7em;
+    font-size: 0.98em;
+}
 @import '../index.css';
 
 

@@ -1,0 +1,38 @@
+/* Estilo exclusivo para o botão Sair no App.jsx */
+.btn-sair-app {
+    min-width: 110px;
+    max-width: 150px;
+    height: 42px;
+    padding: 0.3rem 1.3rem 0.3rem 1rem;
+    font-size: 1.08rem;
+    font-weight: 700;
+    border-radius: 24px;
+    background: linear-gradient(90deg, #2563eb 0%, #1976d2 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 16px #2563eb33, 0 1.5px 4px #1976d211;
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    z-index: 100;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+}
+.btn-sair-app:hover {
+    background: linear-gradient(90deg, #1976d2 0%, #2563eb 100%);
+    color: #ffe5e5;
+    box-shadow: 0 6px 24px #2563eb55;
+}
+.btn-sair-app .icon-sair {
+    font-size: 1.2em;
+    margin-right: 0.3em;
+    color: #fff;
+    transition: color 0.2s;
+}
+.btn-sair-app:hover .icon-sair {
+    color: #ffe5e5;
+}

@@ -15,6 +15,9 @@ import Relatorio from './pages/relatorio/Relatorio';
 import ProntuarioEletronico from './pages/prontuario/ProntuarioEletronico';
 import Login from './pages/login/Login';
 import './App.css';
+import './AppSairButton.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect } from 'react';
 
 
@@ -43,7 +46,12 @@ function App() {
     return (
         <BrowserRouter>
             <Header />
-            <button className="form-btn btn-sair" style={{position:'absolute',top:10,right:10}} onClick={handleLogout}>Sair</button>
+            <button className="btn-sair-app" onClick={handleLogout}>
+                <span className="icon-sair">
+                    <FontAwesomeIcon icon={faSignOutAlt} />
+                </span>
+                Sair
+            </button>
             <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path='/cadastro' element={<CadastroPaciente />} />

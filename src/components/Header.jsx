@@ -32,8 +32,14 @@ export default function Header() {
                     </span>
                     Saúde
                 </h1>
-                <span style={{position:'absolute',top:18,right:120,color:'#444',fontSize:'1rem',fontWeight:400,zIndex:2,background:'transparent',padding:'0 0.5rem'}}>
-                    {dadosLogado.nome && dadosLogado.perfil ? `${dadosLogado.nome} | ${dadosLogado.perfil}` : ''}
+                <span className="header-user-info">
+                    {dadosLogado.nome && dadosLogado.perfil ? (
+                        <span className="user-pill">
+                            <span className="user-name">{dadosLogado.nome}</span>
+                            <span className="user-sep">|</span>
+                            <span className="user-perfil">{dadosLogado.perfil}</span>
+                        </span>
+                    ) : ''}
                 </span>
                 <hr />
                 <Nav />
