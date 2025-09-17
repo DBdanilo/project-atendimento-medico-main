@@ -54,7 +54,11 @@ main.relatorio h1 {
 
 .botoes-controle {
   display: flex;
-  gap: 10px;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2rem;
+  margin-top: 1.2rem;
 }
 
 /* Loading States */
@@ -191,17 +195,26 @@ main.relatorio h1 {
 }
 
 .btn-export {
-  background-color: var(--primary-blue);
-  color: var(--white);
-  min-width: 100px;
+  min-width: 180px;
+  max-width: 220px;
+  padding: 0.7em 0;
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px #1976d233;
+  background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%);
+  color: #fff;
+  border: none;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.08em;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 
 .btn-export:hover {
-  background-color: var(--primary-dark-blue);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+  background: linear-gradient(90deg, #125ea2 60%, #1976d2 100%);
+  box-shadow: 0 4px 16px #1976d233;
 }
 
 .btn-export:active {
@@ -210,18 +223,26 @@ main.relatorio h1 {
 }
 
 .btn-export-pdf {
-  background-color: var(--primary-blue);
-  color: var(--white);
-  min-width: 100px;
-  position: relative;
+  min-width: 180px;
+  max-width: 220px;
+  padding: 0.7em 0;
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px #1976d233;
+  background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%);
+  color: #fff;
+  border: none;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.08em;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 
 .btn-export-pdf:hover {
-  background-color: var(--primary-dark-blue);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+  background: linear-gradient(90deg, #125ea2 60%, #1976d2 100%);
+  box-shadow: 0 4px 16px #1976d233;
 }
 
 .btn-export-pdf:active {
