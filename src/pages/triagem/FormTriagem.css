@@ -1,3 +1,24 @@
+/* Cores correspondentes ao tipo de prioridade no triagem */
+.triagem-detalhe-content .reclassificar-btn.urgente {
+    background: linear-gradient(90deg, #ffe5e5 60%, #ffb3b3 100%) !important;
+    color: #444 !important;
+    border: 2px solid #e53935 !important;
+    box-shadow: 0 2px 8px #e5393522 !important;
+}
+
+.triagem-detalhe-content .reclassificar-btn.moderado {
+    background: linear-gradient(90deg, #fffde7 60%, #fff9c4 100%) !important;
+    color: #444 !important;
+    border: 2px solid #ffd600 !important;
+    box-shadow: 0 2px 8px #ffd60022 !important;
+}
+
+.triagem-detalhe-content .reclassificar-btn.normal {
+    background: linear-gradient(90deg, #e0f7ef 60%, #b2f7c1 100%) !important;
+    color: #444 !important;
+    border: 2px solid #2dbd6e !important;
+    box-shadow: 0 2px 8px #2dbd6e22 !important;
+}
 @import '../../index.css';
 
 
@@ -34,6 +55,7 @@
     letter-spacing: 0.5px;
 }
 
+
 .triagem-detalhe-content .paciente-info {
     width: 90%;
     background: #e3e9f6;
@@ -44,29 +66,32 @@
     flex-wrap: wrap;
     gap: 1.2rem;
     justify-content: space-between;
-    .reclassificar-btn {
-        min-width: 180px !important;
-        max-width: 220px !important;
-        padding: 0.7em 0 !important;
-        font-weight: 600 !important;
-        border-radius: 6px !important;
-        box-shadow: 0 2px 8px #1976d233 !important;
-        background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%) !important;
-        color: #fff !important;
-        border: none !important;
-        display: block !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        margin-top: 0.5rem !important;
-        font-size: 1.08em !important;
-        cursor: pointer !important;
-        transition: background 0.2s, box-shadow 0.2s !important;
-    }
     align-items: center;
     font-size: 1.08em;
     font-weight: 600;
     color: #234;
     box-shadow: 0 1px 4px #2563eb11;
+}
+
+/* Garante que todos os botões de reclassificação no triagem fiquem com largura igual */
+.triagem-detalhe-content .reclassificar-btn {
+    min-width: 180px !important;
+    max-width: 180px !important;
+    width: 180px !important;
+    padding: 0.7em 0 !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px #1976d233 !important;
+    background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%) !important;
+    color: #fff !important;
+    border: none !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 0.5rem !important;
+    font-size: 1.08em !important;
+    cursor: pointer !important;
+    transition: background 0.2s, box-shadow 0.2s !important;
 }
 
 .triagem-detalhe-content form {

@@ -4,9 +4,11 @@ button.urgente {
     border: 2px solid #e53935;
     font-weight: 700;
     border-radius: 8px;
-    width: 180px;
-    padding: 0.7em 1.1em;
-    font-size: 1.05em;
+    min-width: 110px;
+    max-width: 110px;
+    width: 110px;
+    padding: 0.7em 0.7em;
+    font-size: 1em;
     transition: background 0.2s, box-shadow 0.2s;
     box-shadow: 0 2px 8px #e5393522;
 }
@@ -27,9 +29,11 @@ button.moderado {
     border: 2px solid #ffd600;
     font-weight: 700;
     border-radius: 8px;
-    width: 180px;
-    padding: 0.7em 1.1em;
-    font-size: 1.05em;
+    min-width: 110px;
+    max-width: 110px;
+    width: 110px;
+    padding: 0.7em 0.7em;
+    font-size: 1em;
     transition: background 0.2s, box-shadow 0.2s;
     box-shadow: 0 2px 8px #ffd60022;
 }
@@ -49,9 +53,11 @@ button.normal {
     border: 2px solid #2dbd6e;
     font-weight: 700;
     border-radius: 8px;
-    width: 180px;
-    padding: 0.7em 1.1em;
-    font-size: 1.05em;
+    min-width: 110px;
+    max-width: 110px;
+    width: 110px;
+    padding: 0.7em 0.7em;
+    font-size: 1em;
     transition: background 0.2s, box-shadow 0.2s;
     box-shadow: 0 2px 8px #2dbd6e22;
 }
@@ -69,13 +75,15 @@ ul.selecao-prioridade {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
 }
 
 .selecao-prioridade li {
     text-decoration: none;
     list-style: none;
-
-    margin: 0 10px;
+    margin: 0 0.3rem;
+    padding: 0;
 }
 
 .selecao-prioridade svg {
