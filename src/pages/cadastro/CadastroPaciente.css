@@ -1,3 +1,5 @@
+@import '../../index.css';
+
 .btn-cadastro {
     min-width: 180px !important;
     max-width: 220px !important;
@@ -20,7 +22,6 @@
     background: linear-gradient(90deg, #125ea2 60%, #1976d2 100%) !important;
     box-shadow: 0 4px 16px #1976d233 !important;
 }
-@import '../../index.css';
 
 
 main.cadastro-paciente {

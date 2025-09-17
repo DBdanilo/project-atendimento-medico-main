@@ -358,6 +358,285 @@ app.delete('/pacientes/:id', async (req, res) => {
   }
 });
 
+// ================== RELATÓRIOS GERENCIAIS ==================
+
+// 1. Relatório de Tempo Médio de Atendimento
+app.get('/relatorios/tempo-medio', async (req, res) => {
+  try {
+    // Busca histórico com triagem e atendimento no mesmo registro
+    const dados = await prisma.historicoAtendimento.findMany({
+      where: {
+        AND: [
+          { triagemId: { not: null } },
+          { atendimentoId: { not: null } }
+        ]
+      },
+      include: {
+        triagem: true,
+        atendimento: true
+      }
+    });
+
+    let tempoTotalMinutos = 0;
+    let contador = 0;
+    const temposPorPrioridade = { BAIXA: [], MEDIA: [], ALTA: [] };
+
+    dados.forEach(item => {
+      if (item.triagem && item.atendimento) {
+        const tempoTriagem = new Date(item.triagem.createdAt);
+        const tempoAtendimento = new Date(item.atendimento.createdAt);
+        const diferencaMinutos = (tempoAtendimento - tempoTriagem) / (1000 * 60);
+        
+        if (diferencaMinutos > 0) {
+          tempoTotalMinutos += diferencaMinutos;
+          contador++;
+          
+          const prioridade = item.prioridadeTriagem || item.triagem.prioridade;
+          if (temposPorPrioridade[prioridade]) {
+            temposPorPrioridade[prioridade].push(diferencaMinutos);
+          }
+        }
+      }
+    });
+
+    const tempoMedioGeral = contador > 0 ? Math.round(tempoTotalMinutos / contador) : 0;
+    
+    const tempoMedioPorPrioridade = {};
+    Object.keys(temposPorPrioridade).forEach(prioridade => {
+      const tempos = temposPorPrioridade[prioridade];
+      tempoMedioPorPrioridade[prioridade] = tempos.length > 0 
+        ? Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length)
+        : 0;
+    });
+
+    res.json({
+      tempoMedioGeral: `${tempoMedioGeral} minutos`,
+      tempoMedioPorPrioridade,
+      totalAtendimentos: contador
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao gerar relatório de tempo médio', details: err.message });
+  }
+});
+
+// 2. Relatório de Picos de Demanda por Horário
+app.get('/relatorios/picos-demanda', async (req, res) => {
+  try {
+    const triagens = await prisma.triagem.findMany({
+      select: { createdAt: true }
+    });
+    
+    const atendimentos = await prisma.atendimento.findMany({
+      select: { createdAt: true }
+    });
+
+    const demandaPorHora = {};
+    
+    // Inicializar todas as horas
+    for (let i = 0; i < 24; i++) {
+      demandaPorHora[i] = { triagens: 0, atendimentos: 0, total: 0 };
+    }
+
+    // Contar triagens por hora
+    triagens.forEach(triagem => {
+      const hora = new Date(triagem.createdAt).getHours();
+      demandaPorHora[hora].triagens++;
+      demandaPorHora[hora].total++;
+    });
+
+    // Contar atendimentos por hora
+    atendimentos.forEach(atendimento => {
+      const hora = new Date(atendimento.createdAt).getHours();
+      demandaPorHora[hora].atendimentos++;
+      demandaPorHora[hora].total++;
+    });
+
+    // Encontrar pico
+    let picoHora = 0;
+    let picoTotal = 0;
+    Object.keys(demandaPorHora).forEach(hora => {
+      if (demandaPorHora[hora].total > picoTotal) {
+        picoTotal = demandaPorHora[hora].total;
+        picoHora = parseInt(hora);
+      }
+    });
+
+    res.json({
+      demandaPorHora,
+      picoHorario: `${picoHora}:00 - ${picoHora + 1}:00`,
+      totalPico: picoTotal
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao gerar relatório de picos de demanda', details: err.message });
+  }
+});
+
+// 3. Análise por Faixa Etária
+app.get('/relatorios/faixa-etaria', async (req, res) => {
+  try {
+    const pacientes = await prisma.paciente.findMany({
+      select: { dataNascimento: true, sexo: true },
+      where: {
+        OR: [
+          { triagens: { some: {} } },
+          { atendimentos: { some: {} } }
+        ]
+      }
+    });
+
+    const faixas = {
+      'pediatria': { masculino: 0, feminino: 0, total: 0 },      // 0-12
+      'adolescente': { masculino: 0, feminino: 0, total: 0 },   // 13-17
+      'adulto': { masculino: 0, feminino: 0, total: 0 },        // 18-60
+      'idoso': { masculino: 0, feminino: 0, total: 0 }          // 60+
+    };
+
+    const hoje = new Date();
+    
+    pacientes.forEach(paciente => {
+      const nascimento = new Date(paciente.dataNascimento);
+      const idade = Math.floor((hoje - nascimento) / (1000 * 60 * 60 * 24 * 365.25));
+      
+      let faixa;
+      if (idade <= 12) faixa = 'pediatria';
+      else if (idade <= 17) faixa = 'adolescente';
+      else if (idade <= 60) faixa = 'adulto';
+      else faixa = 'idoso';
+
+      const sexo = paciente.sexo.toLowerCase() === 'masculino' ? 'masculino' : 'feminino';
+      faixas[faixa][sexo]++;
+      faixas[faixa].total++;
+    });
+
+    res.json(faixas);
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao gerar relatório de faixa etária', details: err.message });
+  }
+});
+
+// 4. Diagnósticos Mais Comuns
+app.get('/relatorios/diagnosticos', async (req, res) => {
+  try {
+    const atendimentos = await prisma.atendimento.findMany({
+      select: { diagnostico: true, prioridade: true },
+      include: {
+        paciente: {
+          select: { dataNascimento: true }
+        }
+      }
+    });
+
+    // Top 10 diagnósticos
+    const contadorDiagnosticos = {};
+    const diagnosticosPorPrioridade = { BAIXA: {}, MEDIA: {}, ALTA: {} };
+    const diagnosticosPorFaixa = { pediatria: {}, adolescente: {}, adulto: {}, idoso: {} };
+
+    const hoje = new Date();
+
+    atendimentos.forEach(atendimento => {
+      const diagnostico = atendimento.diagnostico;
+      
+      // Contar total
+      contadorDiagnosticos[diagnostico] = (contadorDiagnosticos[diagnostico] || 0) + 1;
+      
+      // Por prioridade
+      const prioridade = atendimento.prioridade;
+      if (!diagnosticosPorPrioridade[prioridade][diagnostico]) {
+        diagnosticosPorPrioridade[prioridade][diagnostico] = 0;
+      }
+      diagnosticosPorPrioridade[prioridade][diagnostico]++;
+
+      // Por faixa etária
+      if (atendimento.paciente?.dataNascimento) {
+        const nascimento = new Date(atendimento.paciente.dataNascimento);
+        const idade = Math.floor((hoje - nascimento) / (1000 * 60 * 60 * 24 * 365.25));
+        
+        let faixa;
+        if (idade <= 12) faixa = 'pediatria';
+        else if (idade <= 17) faixa = 'adolescente';
+        else if (idade <= 60) faixa = 'adulto';
+        else faixa = 'idoso';
+
+        if (!diagnosticosPorFaixa[faixa][diagnostico]) {
+          diagnosticosPorFaixa[faixa][diagnostico] = 0;
+        }
+        diagnosticosPorFaixa[faixa][diagnostico]++;
+      }
+    });
+
+    // Top 10
+    const top10 = Object.entries(contadorDiagnosticos)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 10)
+      .map(([diagnostico, count]) => ({ diagnostico, count }));
+
+    res.json({
+      top10Diagnosticos: top10,
+      diagnosticosPorPrioridade,
+      diagnosticosPorFaixaEtaria: diagnosticosPorFaixa,
+      totalAtendimentos: atendimentos.length
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao gerar relatório de diagnósticos', details: err.message });
+  }
+});
+
+// 5. Prescrições Mais Utilizadas
+app.get('/relatorios/prescricoes', async (req, res) => {
+  try {
+    const atendimentos = await prisma.atendimento.findMany({
+      select: { prescricao: true, diagnostico: true },
+      include: {
+        funcionario: {
+          select: { nome: true }
+        }
+      }
+    });
+
+    const contadorPrescricoes = {};
+    const prescricoesPorDiagnostico = {};
+    const prescricoesPorMedico = {};
+
+    atendimentos.forEach(atendimento => {
+      const prescricao = atendimento.prescricao;
+      const diagnostico = atendimento.diagnostico;
+      const medico = atendimento.funcionario?.nome || 'Não informado';
+
+      // Contar prescrições mais utilizadas
+      contadorPrescricoes[prescricao] = (contadorPrescricoes[prescricao] || 0) + 1;
+
+      // Prescrições por diagnóstico
+      if (!prescricoesPorDiagnostico[diagnostico]) {
+        prescricoesPorDiagnostico[diagnostico] = {};
+      }
+      prescricoesPorDiagnostico[diagnostico][prescricao] = 
+        (prescricoesPorDiagnostico[diagnostico][prescricao] || 0) + 1;
+
+      // Prescrições por médico
+      if (!prescricoesPorMedico[medico]) {
+        prescricoesPorMedico[medico] = {};
+      }
+      prescricoesPorMedico[medico][prescricao] = 
+        (prescricoesPorMedico[medico][prescricao] || 0) + 1;
+    });
+
+    // Top 10 prescrições
+    const top10Prescricoes = Object.entries(contadorPrescricoes)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 10)
+      .map(([prescricao, count]) => ({ prescricao, count }));
+
+    res.json({
+      top10Prescricoes,
+      prescricoesPorDiagnostico,
+      prescricoesPorMedico,
+      totalPrescricoes: atendimentos.length
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao gerar relatório de prescrições', details: err.message });
+  }
+});
+
 // Exemplo de rota protegida
 app.get('/protegido', (req, res) => {
   const auth = req.headers.authorization;
