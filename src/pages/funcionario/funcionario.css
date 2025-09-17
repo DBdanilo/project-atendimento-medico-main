@@ -227,3 +227,22 @@
   border-radius: 4px;
   font-size: 1rem;
 }
+
+/* Campo de busca CPF refinado */
+.cpf-busca-input {
+  width: 100%;
+  padding: 0.7rem 1.1rem;
+  border: 2px solid #1976d2;
+  border-radius: 8px;
+  font-size: 1.08rem;
+  color: #222;
+  font-weight: 600;
+  background: #fafdff;
+  box-shadow: 0 1px 4px #1976d211;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.cpf-busca-input:focus {
+  border-color: #174ea6;
+  outline: none;
+  box-shadow: 0 0 0 2px #2563eb22;
+}

@@ -191,24 +191,30 @@
 }
 
 .botoes-atendimento {
-    display: flex;
-    gap: 0.7rem;
-    justify-content: space-between;
+    background: var(--primary-blue, #2563eb);
+    color: #fff;
+    font-weight: 800;
+    border: none;
+    box-shadow: 0 1px 6px #2563eb33;
+    border-radius: 6px;
+    transition: background 0.18s, box-shadow 0.18s;
 }
-
 
 .salvar-btn-atendimento {
     background: var(--primary-blue, #2563eb);
     color: #fff;
     font-weight: 800;
     border: none;
+    box-shadow: 0 1px 6px #2563eb33;
+    border-radius: 6px;
+    transition: background 0.18s, box-shadow 0.18s;
 }
 
 .salvar-btn-atendimento:hover,
 .salvar-btn-atendimento:focus {
     background: var(--primary-dark-blue, #174ea6);
     color: #fff;
-    box-shadow: 0 4px 16px #2563eb33;
+    box-shadow: 0 4px 16px #2563eb55;
     outline: none;
 }
 

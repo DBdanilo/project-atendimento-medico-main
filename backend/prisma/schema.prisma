@@ -23,6 +23,7 @@ model Paciente {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   listaEsperaTriagem Boolean @default(false)
+  historicos HistoricoAtendimento[]
 }
 
 model Funcionario {
@@ -35,6 +36,7 @@ model Funcionario {
   updatedAt DateTime @updatedAt
   triagens  Triagem[] @relation("FuncionarioTriagens")
   atendimentos Atendimento[]
+  historicos HistoricoAtendimento[]
 }
 
 model Triagem {
@@ -50,6 +52,7 @@ model Triagem {
   observacao   String?
   prioridade   String
   createdAt    DateTime   @default(now())
+  historicos HistoricoAtendimento[]
 }
 
 model Atendimento {
@@ -64,6 +67,37 @@ model Atendimento {
   observacao   String?
   prioridade   String
   createdAt    DateTime   @default(now())
+  historicos HistoricoAtendimento[]
+}
+
+
+model HistoricoAtendimento {
+  id                      String      @id @default(uuid())
+  paciente                Paciente    @relation(fields: [pacienteId], references: [id])
+  pacienteId              String
+  triagem                 Triagem?    @relation(fields: [triagemId], references: [id])
+  triagemId               String?
+  atendimento             Atendimento? @relation(fields: [atendimentoId], references: [id])
+  atendimentoId           String?
+  funcionario             Funcionario? @relation(fields: [funcionarioId], references: [id])
+  funcionarioId           String?
+  // Dados da triagem
+  temperatura             Float?
+  pressao                 String?
+  peso                    Float?
+  altura                  Float?
+  observacaoTriagem       String?
+  prioridadeTriagem       String?
+  // Dados do atendimento
+  motivo                  String?
+  diagnostico             String?
+  prescricao              String?
+  observacaoAtendimento   String?
+  prioridadeAtendimento   String?
+  // Controle
+  descricao               String?
+  dataEvento              DateTime    @default(now())
+  createdAt               DateTime    @default(now())
 }
 
 enum Perfil {

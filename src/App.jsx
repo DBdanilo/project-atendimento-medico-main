@@ -12,6 +12,7 @@ import FormAtendimento from './pages/atendimento/FormAtendimento';
 import PainelSituacao from './pages/painel/PainelSituacao';
 import Funcionario from './pages/funcionario/Funcionario';
 import Relatorio from './pages/relatorio/Relatorio';
+import ProntuarioEletronico from './pages/prontuario/ProntuarioEletronico';
 import Login from './pages/login/Login';
 import './App.css';
 import { useState, useEffect } from 'react';
@@ -53,6 +54,7 @@ function App() {
                 <Route path='/painel' element={<PainelSituacao />} />
                 <Route path='/funcionarios' element={<Funcionario />} />
                 <Route path='/relatorio' element={<Relatorio />} />
+                <Route path='/prontuario' element={<ProntuarioEletronico />} />
                 <Route path='*' element={<Navigate to='/' />} />
             </Routes>
             <Footer />

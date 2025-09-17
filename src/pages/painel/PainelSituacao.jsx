@@ -1,153 +1,72 @@
-import { useEffect, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faClock, faStethoscope, faUserCheck, faUserClock, faExclamationCircle, faCheckCircle, faHeartbeat } from '@fortawesome/free-solid-svg-icons'
-import { getPacientes } from '../../utils/dados'
-import ordenaByPrioridade from '../../utils/ordenaByPrioridade'
-
-import './PainelSituacao.css'
-
-
-const statusLabels = {
-    aguardando_triagem: { label: 'Esperando Triagem', icon: faClock },
-    em_triagem: { label: 'Em Triagem', icon: faStethoscope },
-    aguardando_atendimento: { label: 'Esperando Atendimento', icon: faUserClock },
-    em_atendimento: { label: 'Em Atendimento', icon: faUserCheck },
-}
-
-function getStatus(paciente) {
-    if (paciente.atendimento) return null // Já finalizado
-
-    if (paciente.emAtendimento) return 'em_atendimento'
-
-    if (paciente.triagem && !paciente.atendimento) return 'aguardando_atendimento'
-
-    if (paciente.emTriagem) return 'em_triagem'
-
-    return 'aguardando_triagem'
-}
-
-function getUltimosChamados() {
-    // Busca lista de chamados do localStorage
-    return JSON.parse(localStorage.getItem('ultimos_chamados') || '[]')
-}
-
-const prioridadeLegendas = [
-    { cor: 'vermelho', label: 'Urgente', icon: faExclamationCircle },
-    { cor: 'amarelo', label: 'Moderado', icon: faHeartbeat },
-    { cor: 'verde', label: 'Normal', icon: faCheckCircle },
-]
+import { useEffect, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStethoscope, faUserCheck, faExclamationCircle, faHeartbeat, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { getPacientes } from '../../utils/dados';
+import './PainelSituacao.css';
 
 export default function PainelSituacao() {
     const [pacientes, setPacientes] = useState([]);
-    const [ultimosChamados, setUltimosChamados] = useState([]);
+    const [horaPainel, setHoraPainel] = useState(new Date());
 
     useEffect(() => {
-        let ultimoPacientes = []
-        let ultimoChamados = localStorage.getItem('ultimos_chamados')
-
-            async function atualizarPainel() {
+        async function atualizarPainel() {
             const todos = await getPacientes();
-            const data = ordenaByPrioridade(todos);
-            setPacientes(data);
-            setUltimosChamados(getUltimosChamados());
+            setPacientes(todos);
         }
+        atualizarPainel();
+        const interval = setInterval(() => {
+            setHoraPainel(new Date());
+            atualizarPainel();
+        }, 10000);
+        return () => clearInterval(interval);
+    }, []);
 
-        atualizarPainel()
+    // Filtrar 3 últimos triagens iniciadas
+    const triagensIniciadas = pacientes
+        .filter(p => Array.isArray(p.triagens) && p.triagens.length > 0)
+        .sort((a, b) => new Date(b.triagens[b.triagens.length-1]?.createdAt || 0) - new Date(a.triagens[a.triagens.length-1]?.createdAt || 0))
+        .slice(0, 3);
 
-        window.addEventListener('storage', atualizarPainel)
+    // Filtrar 3 últimos atendimentos iniciados
+    const atendimentosIniciados = pacientes
+        .filter(p => Array.isArray(p.atendimentos) && p.atendimentos.length > 0)
+        .sort((a, b) => new Date(b.atendimentos[b.atendimentos.length-1]?.createdAt || 0) - new Date(a.atendimentos[a.atendimentos.length-1]?.createdAt || 0))
+        .slice(0, 3);
 
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') atualizarPainel()
-        })
-
-        // Atualização automática por polling
-            const interval = setInterval(async () => {
-            const atualPacientes = await getPacientes();
-
-            ordenaByPrioridade(atualPacientes)
-
-            const atualChamados = localStorage.getItem('ultimos_chamados')
-
-            if (atualPacientes !== ultimoPacientes || atualChamados !== ultimoChamados) {
-                ultimoPacientes = atualPacientes
-                ultimoChamados = atualChamados
-
-                atualizarPainel()
-            }
-        }, 1000)
-
-        return () => {
-            window.removeEventListener('storage', atualizarPainel)
-            document.removeEventListener('visibilitychange', atualizarPainel)
-
-            clearInterval(interval)
-        }
-    }, [])
-
-    // Agrupa pacientes por status
-    const statusMap = {
-        aguardando_triagem: [],
-        em_triagem: [],
-        aguardando_atendimento: [],
-        em_atendimento: [],
+    function formatarDataHora(dt) {
+        if (!dt) return '';
+        const d = new Date(dt);
+        return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
-
-    pacientes.forEach(p => {
-        const status = getStatus(p)
-
-        if (status) statusMap[status].push(p)
-    })
 
     return (
         <main className="painel-situacao">
             <h1>Painel de Situação dos Pacientes</h1>
-
-            {/* Botão de atualização removido, fluxo agora é 100% automático */}
-
-            <div className="painel-legenda">
-                <b>Legenda de Prioridade:</b>
-
-                {prioridadeLegendas.map((p, idx) => (
-                    <span key={idx} className={`legenda-prioridade prioridade-${p.cor}`}>
-                        <FontAwesomeIcon icon={p.icon} /> {p.label}
-                    </span>
-                ))}
-            </div>
-
+            <div className="painel-horario destaque-horario">{formatarDataHora(horaPainel)}</div>
             <div className="painel-colunas">
-                {Object.entries(statusLabels).map(([status, { label, icon }]) => (
-                    <div className="painel-coluna" key={status}>
-
-                        <h2><FontAwesomeIcon icon={icon} className="painel-status-icon" /> {label}</h2>
-
-                        {statusMap[status].length === 0 && <p className="vazio">Nenhum paciente</p>}
-
-                        {statusMap[status].map((p, idx) => (
-                            <div className={`painel-card prioridade-${p.prioridade?.toLowerCase()}${p.prioridade === 'Urgente' ? ' destaque-urgente' : ''}`} key={p.id || p.nome + idx}>
-                                <span className="painel-nome">{p.nome}</span>
-
-                                <span className="painel-prioridade">{p.prioridade}</span>
-                            </div>
-                        ))}
-                    </div>
-                ))}
-            </div>
-
-            <div className="painel-chamados">
-                <h2>Últimos 3 Pacientes Chamados</h2>
-
-                {ultimosChamados.length === 0 && <p className="vazio">Nenhum chamado recente</p>}
-
-                {ultimosChamados.map((c, idx) => (
-                    <div className={`painel-card prioridade-${c.prioridade?.toLowerCase()}`} key={c.cpf || c.nome + idx}>
-                        <span className="painel-nome">{c.nome}</span>
-
-                        <span className="painel-prioridade">{c.prioridade}</span>
-
-                        <span className="painel-local">{c.local || 'Consultório'}</span>
-                    </div>
-                ))}
+                <div className="painel-coluna">
+                    <h2><FontAwesomeIcon icon={faStethoscope} className="painel-status-icon" />chamado para triagem na sala 1</h2>
+                    {triagensIniciadas.length === 0 && <p className="vazio">Nenhum paciente</p>}
+                    {triagensIniciadas.map((p, idx) => (
+                        <div className={`painel-card prioridade-${p.prioridade?.toLowerCase()}`} key={p.id || p.nome + idx}>
+                            <span className="painel-nome">{p.nome}</span>
+                            <span className="painel-prioridade">{p.prioridade}</span>
+                            <span className="painel-hora">Início: {formatarDataHora(p.triagens[p.triagens.length-1]?.createdAt)}</span>
+                        </div>
+                    ))}
+                </div>
+                <div className="painel-coluna">
+                    <h2><FontAwesomeIcon icon={faUserCheck} className="painel-status-icon" />Dirigir-se ao consultório para atendimento</h2>
+                    {atendimentosIniciados.length === 0 && <p className="vazio">Nenhum paciente</p>}
+                    {atendimentosIniciados.map((p, idx) => (
+                        <div className={`painel-card prioridade-${p.prioridade?.toLowerCase()}`} key={p.id || p.nome + idx}>
+                            <span className="painel-nome">{p.nome}</span>
+                            <span className="painel-prioridade">{p.prioridade}</span>
+                            <span className="painel-hora">Início: {formatarDataHora(p.atendimentos[p.atendimentos.length-1]?.createdAt)}</span>
+                        </div>
+                    ))}
+                </div>
             </div>
         </main>
-    )
+    );
 }

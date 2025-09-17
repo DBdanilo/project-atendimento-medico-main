@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus, faNotesMedical, faUserMd, faHome, faListAlt, faUsers, faChartBar } from "@fortawesome/free-solid-svg-icons";
+import { faUserPlus, faNotesMedical, faUserMd, faHome, faListAlt, faUsers, faChartBar, faFileMedical } from "@fortawesome/free-solid-svg-icons";
 import './Nav.css';
 
 
@@ -22,6 +22,7 @@ export default function Nav() {
 
 
             <Link to='/relatorio'><FontAwesomeIcon icon={faChartBar} /> Relatório</Link>
+            <Link to='/prontuario'><FontAwesomeIcon icon={faFileMedical} /> Prontuário</Link>
         </nav>
     )
 }

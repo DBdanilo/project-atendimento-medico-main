@@ -1,0 +1,66 @@
+/* prontuario.css - estilos para o módulo de Prontuário Eletrônico */
+
+.prontuario-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(25, 118, 210, 0.08);
+  padding: 2rem 2.5rem;
+}
+
+.prontuario-form {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.prontuario-cpf-input {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border: 1px solid #1976d2;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #222;
+  background: #fafdff;
+}
+
+.btn-principal {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-principal:disabled {
+  background: #90caf9;
+  cursor: not-allowed;
+}
+
+.prontuario-historico {
+  margin-top: 2rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 1.2rem;
+}
+
+.prontuario-item {
+  margin-bottom: 1.2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e3e3e3;
+}
+
+.prontuario-item:last-child {
+  border-bottom: none;
+}
+
+.erro {
+  color: #d32f2f;
+  margin-top: 1rem;
+  font-weight: 500;
+}

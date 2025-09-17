@@ -47,70 +47,57 @@ function CadastroFuncionario({ onCadastrado }) {
     <div className="form-funcionario-card">
       <form className="form-funcionario" onSubmit={handleSubmit} autoComplete="off">
         <div className="form-funcionario-header">
-          <span className="form-funcionario-icon" role="img" aria-label="user">👤</span>
           <h2>Cadastro de Funcionário</h2>
         </div>
         <div className="form-group">
           <label htmlFor="nome">Nome</label>
-          <div className="input-icon-group">
-            <span className="input-icon">📝</span>
-            <input
-              id="nome"
-              name="nome"
-              value={funcionario.nome}
-              onChange={handleChange}
-              required
-              placeholder="Digite o nome"
-            />
-          </div>
+          <input
+            id="nome"
+            name="nome"
+            value={funcionario.nome}
+            onChange={handleChange}
+            required
+            placeholder="Digite o nome"
+          />
         </div>
         <div className="form-group">
           <label htmlFor="cpf">CPF</label>
-          <div className="input-icon-group">
-            <span className="input-icon">#️⃣</span>
-            <input
-              id="cpf"
-              name="cpf"
-              value={funcionario.cpf}
-              onChange={handleChange}
-              required
-              placeholder="Digite o CPF"
-              maxLength={14}
-            />
-          </div>
+          <input
+            id="cpf"
+            name="cpf"
+            value={funcionario.cpf}
+            onChange={handleChange}
+            required
+            placeholder="Digite o CPF"
+            maxLength={14}
+          />
         </div>
         <div className="form-group">
           <label htmlFor="perfil">Perfil</label>
-          <div className="input-icon-group">
-            <span className="input-icon">🏷️</span>
-            <select
-              id="perfil"
-              name="perfil"
-              value={funcionario.perfil}
-              onChange={handleChange}
-            >
-              {perfis.map((perfil) => (
-                <option key={perfil.value} value={perfil.value}>
-                  {perfil.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            id="perfil"
+            name="perfil"
+            value={funcionario.perfil}
+            onChange={handleChange}
+          >
+            {perfis.map((perfil) => (
+              <option key={perfil.value} value={perfil.value}>
+                {perfil.label}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="form-group">
           <label htmlFor="senha">Senha</label>
-          <div className="input-icon-group">
-            <span className="input-icon">🔒</span>
-            <input
-              id="senha"
-              name="senha"
-              type="password"
-              value={funcionario.senha}
-              onChange={handleChange}
-              required
-              placeholder="Digite a senha"
-            />
-          </div>
+          <input
+            id="senha"
+            name="senha"
+            type="password"
+            value={funcionario.senha}
+            onChange={handleChange}
+            required
+            placeholder="Digite a senha"
+          />
         </div>
         <button className="form-btn" type="submit">Cadastrar</button>
         {mensagem && <div className="form-success">{mensagem}</div>}
