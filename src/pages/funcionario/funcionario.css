@@ -1,12 +1,12 @@
 .btn-sair {
-  min-width: 90px !important;
-  max-width: 120px !important;
-  height: auto !important;
-  padding: 0.45rem 1rem !important;
-  font-size: 1rem !important;
+  min-width: 60px !important;
+  max-width: 80px !important;
+  height: 32px !important;
+  padding: 0.2rem 0.7rem !important;
+  font-size: 0.95rem !important;
   border-radius: 5px !important;
-  margin-top: 0.2rem !important;
-  margin-bottom: 0.2rem !important;
+  margin-top: 0.1rem !important;
+  margin-bottom: 0.1rem !important;
   display: inline-flex;
   align-items: center;
 }
@@ -80,32 +80,31 @@
 }
 
 .form-btn {
-  background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%);
-  color: #fff;
-  border: none;
-  padding: 0.7rem 1.5rem;
-  border-radius: 6px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 0.7rem;
-  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
-  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-  min-width: 180px;
-  max-width: 220px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+  min-width: 180px !important;
+  max-width: 220px !important;
+  padding: 0.7em 0 !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px #1976d233 !important;
+  background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  display: block !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-top: 0.5rem !important;
+  font-size: 1.08em !important;
+  cursor: pointer !important;
+  transition: background 0.2s, box-shadow 0.2s !important;
 }
 
 .form-btn:active {
   transform: scale(0.95);
 }
-}
 
 .form-btn:hover {
-  background: linear-gradient(90deg, #125ea2 60%, #1976d2 100%);
-  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.16);
+  background: linear-gradient(90deg, #125ea2 60%, #1976d2 100%) !important;
+  box-shadow: 0 4px 16px #1976d233 !important;
 }
 .form-funcionario-container {
   background: #fff;
@@ -119,12 +118,18 @@
 .form-funcionario {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
+  align-items: center;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1.2rem 0.5rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  margin-bottom: 0.7rem;
 }
 
 .form-funcionario label {
