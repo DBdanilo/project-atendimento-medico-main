@@ -1,3 +1,14 @@
+/* Alinha os botões lado a lado, como no módulo triagem */
+.botoes-atendimento {
+    display: flex;
+    gap: 0.7rem;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.2rem;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
 @import '../../index.css';
 
 
@@ -201,33 +212,55 @@
 }
 
 .salvar-btn-atendimento {
-    background: var(--primary-blue, #2563eb);
-    color: #fff;
-    font-weight: 800;
-    border: none;
-    box-shadow: 0 1px 6px #2563eb33;
-    border-radius: 6px;
-    transition: background 0.18s, box-shadow 0.18s;
+    min-width: 180px !important;
+    max-width: 220px !important;
+    padding: 0.7em 0 !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px #1976d233 !important;
+    background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%) !important;
+    color: #fff !important;
+    border: none !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 0.5rem !important;
+    font-size: 1.08em !important;
+    cursor: pointer !important;
+    transition: background 0.2s, box-shadow 0.2s !important;
 }
 
 .salvar-btn-atendimento:hover,
 .salvar-btn-atendimento:focus {
-    background: var(--primary-dark-blue, #174ea6);
-    color: #fff;
-    box-shadow: 0 4px 16px #2563eb55;
+    background: linear-gradient(90deg, #125ea2 60%, #1976d2 100%) !important;
+    box-shadow: 0 4px 16px #1976d233 !important;
     outline: none;
 }
 
 .cancelar-btn-atendimento {
-    color: #e53935;
-    font-weight: 800;
+    min-width: 180px !important;
+    max-width: 220px !important;
+    padding: 0.7em 0 !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px #1976d233 !important;
+    background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%) !important;
+    color: #fff !important;
+    border: none !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 0.5rem !important;
+    font-size: 1.08em !important;
+    cursor: pointer !important;
+    transition: background 0.2s, box-shadow 0.2s !important;
 }
 
 .cancelar-btn-atendimento:hover,
 .cancelar-btn-atendimento:focus {
-    background: #e53935;
-    color: #fff;
-    border-color: #b71c1c;
+    background: linear-gradient(90deg, #125ea2 60%, #1976d2 100%) !important;
+    box-shadow: 0 4px 16px #1976d233 !important;
+    outline: none;
     box-shadow: 0 4px 16px #e5393533;
     outline: none;
 }

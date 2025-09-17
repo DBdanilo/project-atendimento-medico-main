@@ -15,7 +15,7 @@ export default function Prioridade({ prioridade, onChange }) {
                 <button
                     type="button"
                     onClick={() => onChange('Urgente')}
-                    className={`urgente ${isAtivo('Urgente') ? 'ativo' : ''}`}
+                    className={`urgente ${isAtivo('Urgente') ? 'ativo' : ''} reclassificar-btn`}
                 >
                     <FontAwesomeIcon icon={faExclamationCircle} />
                     Urgente
@@ -26,7 +26,7 @@ export default function Prioridade({ prioridade, onChange }) {
                 <button
                     type="button"
                     onClick={() => onChange('Moderado')}
-                    className={`moderado ${isAtivo('Moderado') ? 'ativo' : ''}`}
+                    className={`moderado ${isAtivo('Moderado') ? 'ativo' : ''} reclassificar-btn`}
                 >
                     <FontAwesomeIcon icon={faHeartbeat} />
                     Moderado
@@ -34,7 +34,7 @@ export default function Prioridade({ prioridade, onChange }) {
             </li>
 
             <li>
-                <button type="button" onClick={() => onChange('Normal')} className={`normal ${isAtivo('Normal') ? 'ativo' : ''}`}>
+                <button type="button" onClick={() => onChange('Normal')} className={`normal ${isAtivo('Normal') ? 'ativo' : ''} reclassificar-btn`}>
                     <FontAwesomeIcon icon={faCheckCircle} />
                     Normal
                 </button>

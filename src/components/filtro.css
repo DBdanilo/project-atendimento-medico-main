@@ -15,10 +15,22 @@
 }
 
 .filtro button {
-    background-color: aliceblue;
-    color: blue;
+    background-color: #e3e9f6;
+    color: #2563eb;
     display: flex;
     align-items: center;
+    border: 2px solid #bcd0f7;
+    border-radius: 8px;
+    width: 140px;
+    min-width: 140px;
+    max-width: 140px;
+    height: 40px;
+    font-size: 1em;
+    font-weight: 600;
+    justify-content: center;
+    box-shadow: 0 2px 8px #2563eb22;
+    transition: background 0.2s, box-shadow 0.2s;
+    margin: 0 2px;
 }
 
 .filtro button svg {

@@ -198,31 +198,54 @@
 
 
 .salvar-btn-triagem {
-    background: var(--primary-blue, #2563eb);
-    color: #fff;
-    font-weight: 800;
-    border: none;
+    min-width: 180px !important;
+    max-width: 220px !important;
+    padding: 0.7em 0 !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px #1976d233 !important;
+    background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%) !important;
+    color: #fff !important;
+    border: none !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 0.5rem !important;
+    font-size: 1.08em !important;
+    cursor: pointer !important;
+    transition: background 0.2s, box-shadow 0.2s !important;
 }
 
 .salvar-btn-triagem:hover,
 .salvar-btn-triagem:focus {
-    background: var(--primary-dark-blue, #174ea6);
-    color: #fff;
-    box-shadow: 0 4px 16px #2563eb33;
+    background: linear-gradient(90deg, #125ea2 60%, #1976d2 100%) !important;
+    box-shadow: 0 4px 16px #1976d233 !important;
     outline: none;
 }
 
 .cancelar-btn-triagem {
-    color: #e53935;
-    font-weight: 800;
+    min-width: 180px !important;
+    max-width: 220px !important;
+    padding: 0.7em 0 !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px #1976d233 !important;
+    background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%) !important;
+    color: #fff !important;
+    border: none !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 0.5rem !important;
+    font-size: 1.08em !important;
+    cursor: pointer !important;
+    transition: background 0.2s, box-shadow 0.2s !important;
 }
 
 .cancelar-btn-triagem:hover,
 .cancelar-btn-triagem:focus {
-    background: #e53935;
-    color: #fff;
-    border-color: #b71c1c;
-    box-shadow: 0 4px 16px #e5393533;
+    background: linear-gradient(90deg, #125ea2 60%, #1976d2 100%) !important;
+    box-shadow: 0 4px 16px #1976d233 !important;
     outline: none;
 }
 
@@ -234,32 +257,9 @@
     .triagem-detalhe-content .paciente-info {
         flex-direction: column;
         gap: 0.5rem;
-        font-size: 0.98em;
-        padding: 0.6rem 0.7rem;
-    }
-
-    .triagem-detalhe-content h2 {
-        font-size: 1.2rem;
-        padding: 0.3rem 0;
-    }
-}
-
-@media (max-width: 700px) {
-    .triagem-detalhe-content form {
-        padding: 0.7rem 0.2rem 0.7rem 0.2rem;
-    }
-
-    .botoes-triagem-row {
-        flex-direction: column;
-        gap: 0.7rem;
-        align-items: stretch;
-        justify-content: flex-end;
-    }
-
-    .salvar-btn-triagem,
-    .fechar-btn-triagem {
-        min-width: 100%;
-        max-width: 100%;
-        align-self: stretch;
+        background-color: #e3e9f6;
+        color: #2563eb;
+        border: 2px solid #bcd0f7;
+        border-radius: 8px;
     }
 }
