@@ -1,10 +1,10 @@
 button.urgente {
-    background: linear-gradient(90deg, #e53935 60%, #ff5252 100%);
+    background: linear-gradient(90deg, #ffe5e5 60%, #ffb3b3 100%);
     color: #444;
     border: 2px solid #e53935;
     font-weight: 700;
     border-radius: 8px;
-    min-width: 120px;
+    width: 140px;
     padding: 0.7em 1.1em;
     font-size: 1.05em;
     transition: background 0.2s, box-shadow 0.2s;
@@ -12,22 +12,22 @@ button.urgente {
 }
 
 button.urgente.ativo {
-    border: 2.5px solid #b71c1c;
-    box-shadow: 0 4px 16px #e5393533;
+    border: 2.5px solid #e57373;
+    box-shadow: 0 4px 16px #ffb3b333;
 }
 
 button.urgente:hover {
-    background: linear-gradient(90deg, #b71c1c 60%, #e53935 100%);
-    box-shadow: 0 4px 16px #e5393533;
+    background: linear-gradient(90deg, #ffd6d6 60%, #ff8a8a 100%);
+    box-shadow: 0 4px 16px #ffb3b333;
 }
 
 button.moderado {
-    background: linear-gradient(90deg, #ffd600 60%, #ffe082 100%);
+    background: linear-gradient(90deg, #fffde7 60%, #fff9c4 100%);
     color: #444;
     border: 2px solid #ffd600;
     font-weight: 700;
     border-radius: 8px;
-    min-width: 120px;
+    width: 140px;
     padding: 0.7em 1.1em;
     font-size: 1.05em;
     transition: background 0.2s, box-shadow 0.2s;
@@ -35,21 +35,21 @@ button.moderado {
 }
 
 button.moderado.ativo {
-    border: 2.5px solid #ffab00;
-    box-shadow: 0 4px 16px #ffd60033;
+    border: 2.5px solid #ffe082;
+    box-shadow: 0 4px 16px #fff9c433;
 }
 
 button.moderado:hover {
-    background: linear-gradient(90deg, #ffab00 60%, #ffd600 100%);
-    box-shadow: 0 4px 16px #ffd60033;
+    background: linear-gradient(90deg, #fff9c4 60%, #ffe082 100%);
+    box-shadow: 0 4px 16px #fff9c433;
 }
 button.normal {
-    background: linear-gradient(90deg, #43ea7a 60%, #2dbd6e 100%);
+    background: linear-gradient(90deg, #e0f7ef 60%, #b2f7c1 100%);
     color: #444;
     border: 2px solid #2dbd6e;
     font-weight: 700;
     border-radius: 8px;
-    min-width: 120px;
+    width: 140px;
     padding: 0.7em 1.1em;
     font-size: 1.05em;
     transition: background 0.2s, box-shadow 0.2s;
@@ -57,13 +57,13 @@ button.normal {
 }
 
 button.normal.ativo {
-    border: 2.5px solid #1e8c4a;
-    box-shadow: 0 4px 16px #2dbd6e33;
+    border: 2.5px solid #a5d6a7;
+    box-shadow: 0 4px 16px #b2f7c133;
 }
 
 button.normal:hover {
-    background: linear-gradient(90deg, #2dbd6e 60%, #43ea7a 100%);
-    box-shadow: 0 4px 16px #2dbd6e33;
+    background: linear-gradient(90deg, #c8e6c9 60%, #a5d6a7 100%);
+    box-shadow: 0 4px 16px #b2f7c133;
 }
 ul.selecao-prioridade {
     display: flex;
