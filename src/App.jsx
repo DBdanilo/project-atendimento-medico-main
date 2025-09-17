@@ -45,13 +45,7 @@ function App() {
 
     return (
         <BrowserRouter>
-            <Header />
-            <button className="btn-sair-app" onClick={handleLogout}>
-                <span className="icon-sair">
-                    <FontAwesomeIcon icon={faSignOutAlt} />
-                </span>
-                Sair
-            </button>
+            <Header handleLogout={handleLogout} />
             <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path='/cadastro' element={<CadastroPaciente />} />
