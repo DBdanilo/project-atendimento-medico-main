@@ -292,19 +292,22 @@ export default function Relatorio() {
 
   if (loading && !dashboard) {
     return (
-      <div className="container-relatorio">
-        <div className="loading-dashboard">
-          <h2>Carregando Dashboard...</h2>
-          <div className="loading-spinner"></div>
+      <main className="relatorio">
+        <div className="container-relatorio">
+          <div className="loading-dashboard">
+            <h1>Carregando Dashboard...</h1>
+            <div className="loading-spinner"></div>
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="container-relatorio">
-      <div className="dashboard-header">
-        <h2>Dashboard de Relatórios Gerenciais</h2>
+    <main className="relatorio">
+      <div className="container-relatorio">
+        <div className="dashboard-header">
+          <h1>Dashboard de Relatórios Gerenciais</h1>
         
         <div className="controles-dashboard">
           <div className="info-atualizacao">
@@ -586,6 +589,7 @@ export default function Relatorio() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </main>
   );
 }
