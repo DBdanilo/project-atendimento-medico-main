@@ -19,13 +19,35 @@ function ProntuarioEletronico() {
       if (!res.ok) throw new Error("Erro ao buscar prontuário");
       const data = await res.json();
       console.log('Dados recebidos:', data); // Debug
-      setHistorico(data);
+      
+      // Agrupar dados por data
+      const dadosAgrupados = agruparPorData(data);
+      setHistorico(dadosAgrupados);
       if (data.length === 0) setErro("Nenhum histórico encontrado para este CPF.");
     } catch (err) {
       console.error('Erro ao buscar prontuário:', err); // Debug
       setErro(err.message);
     }
     setLoading(false);
+  }
+
+  function agruparPorData(dados) {
+    const grupos = {};
+    dados.forEach(item => {
+      const data = new Date(item.dataEvento).toLocaleDateString('pt-BR');
+      if (!grupos[data]) {
+        grupos[data] = [];
+      }
+      grupos[data].push(item);
+    });
+    
+    // Converter para array ordenado por data (mais recente primeiro)
+    return Object.keys(grupos)
+      .sort((a, b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-')))
+      .map(data => ({
+        data,
+        eventos: grupos[data].sort((a, b) => new Date(b.dataEvento) - new Date(a.dataEvento))
+      }));
   }
 
   return (
@@ -46,44 +68,80 @@ function ProntuarioEletronico() {
       {historico.length > 0 && (
         <div className="prontuario-historico">
           <h3>Histórico de Atendimento</h3>
-          <ul>
-            {historico.map((item) => (
-              <li key={item.id} className="prontuario-item">
-                <div><b>Data:</b> {item.dataEvento ? new Date(item.dataEvento).toLocaleString() : '-'}</div>
-                {item.triagemId && (
-                  <div>
-                    <b>Triagem:</b> Temp: {item.temperatura ?? '-'}°C, Pressão: {item.pressao ?? '-'}, Peso: {item.peso ?? '-'}kg, Altura: {item.altura ?? '-'}m, Prioridade: {item.prioridadeTriagem ?? '-'}
-                    {item.observacaoTriagem && <span> - Obs: {item.observacaoTriagem}</span>}
+          {historico.map((grupo) => (
+            <div key={grupo.data} className="historico-dia">
+              <div className="data-cabecalho">
+                <h4>{grupo.data}</h4>
+                <span className="total-eventos">{grupo.eventos.length} evento(s)</span>
+              </div>
+              <div className="eventos-container">
+                {grupo.eventos.map((item) => (
+                  <div key={item.id} className="prontuario-item">
+                    <div className="horario">
+                      <strong>{new Date(item.dataEvento).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</strong>
+                    </div>
+                    
+                    {item.triagemId && (
+                      <div className="secao-triagem">
+                        <div className="titulo-secao">
+                          <span className="icone-triagem">🩺</span>
+                          <strong>Triagem</strong>
+                          {(item.triagem?.funcionario?.nome || item.funcionario?.nome) && (
+                            <span className="nome-profissional">
+                              - {item.triagem?.funcionario?.nome || item.funcionario?.nome}
+                            </span>
+                          )}
+                        </div>
+                        <div className="dados-grid">
+                          <span><strong>Temperatura:</strong> {item.temperatura ?? '-'}°C</span>
+                          <span><strong>Pressão:</strong> {item.pressao ?? '-'}</span>
+                          <span><strong>Peso:</strong> {item.peso ?? '-'}kg</span>
+                          <span><strong>Altura:</strong> {item.altura ?? '-'}m</span>
+                          <span><strong>Prioridade:</strong> <span className={`prioridade ${item.prioridadeTriagem?.toLowerCase()}`}>{item.prioridadeTriagem ?? '-'}</span></span>
+                        </div>
+                        {item.observacaoTriagem && (
+                          <div className="observacao">
+                            <strong>Observação:</strong> {item.observacaoTriagem}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {item.atendimentoId && (
+                      <div className="secao-atendimento">
+                        <div className="titulo-secao">
+                          <span className="icone-atendimento">👨‍⚕️</span>
+                          <strong>Atendimento</strong>
+                          {item.atendimento?.funcionario?.nome && (
+                            <span className="nome-profissional">
+                              - Dr(a). {item.atendimento.funcionario.nome}
+                            </span>
+                          )}
+                        </div>
+                        <div className="dados-verticais">
+                          <div><strong>Motivo:</strong> {item.motivo ?? '-'}</div>
+                          <div><strong>Diagnóstico:</strong> {item.diagnostico ?? '-'}</div>
+                          <div><strong>Prescrição:</strong> {item.prescricao ?? '-'}</div>
+                          <div><strong>Prioridade:</strong> <span className={`prioridade ${item.prioridadeAtendimento?.toLowerCase()}`}>{item.prioridadeAtendimento ?? '-'}</span></div>
+                        </div>
+                        {item.observacaoAtendimento && (
+                          <div className="observacao">
+                            <strong>Observação:</strong> {item.observacaoAtendimento}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {item.descricao && !item.descricao.includes('Histórico combinado') && !item.descricao.includes('Histórico gerado') && (
+                      <div className="descricao-evento">
+                        <strong>Descrição:</strong> {item.descricao}
+                      </div>
+                    )}
                   </div>
-                )}
-                {item.atendimentoId && (
-                  <div>
-                    <b>Atendimento:</b> Motivo: {item.motivo ?? '-'}, Diagnóstico: {item.diagnostico ?? '-'}, Prescrição: {item.prescricao ?? '-'}, Prioridade: {item.prioridadeAtendimento ?? '-'}
-                    {item.observacaoAtendimento && <span> - Obs: {item.observacaoAtendimento}</span>}
-                  </div>
-                )}
-                {item.descricao && <div><b>Descrição:</b> {item.descricao}</div>}
-                {/* Dados do triagem e atendimento originais se disponíveis */}
-                {item.triagem && (
-                  <div style={{marginTop: '10px', padding: '10px', background: '#f5f5f5', borderRadius: '5px'}}>
-                    <b>Dados da Triagem Original:</b><br/>
-                    Temp: {item.triagem.temperatura}°C, Pressão: {item.triagem.pressao}, 
-                    Peso: {item.triagem.peso}kg, Altura: {item.triagem.altura}m, 
-                    Prioridade: {item.triagem.prioridade}
-                    {item.triagem.observacao && <div>Observação: {item.triagem.observacao}</div>}
-                  </div>
-                )}
-                {item.atendimento && (
-                  <div style={{marginTop: '10px', padding: '10px', background: '#e8f4fd', borderRadius: '5px'}}>
-                    <b>Dados do Atendimento Original:</b><br/>
-                    Motivo: {item.atendimento.motivo}, Diagnóstico: {item.atendimento.diagnostico}, 
-                    Prescrição: {item.atendimento.prescricao}, Prioridade: {item.atendimento.prioridade}
-                    {item.atendimento.observacao && <div>Observação: {item.atendimento.observacao}</div>}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

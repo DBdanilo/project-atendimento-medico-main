@@ -21,8 +21,23 @@ app.get('/api/prontuario', async (req, res) => {
       where: { pacienteId: paciente.id },
       orderBy: { dataEvento: 'desc' },
       include: {
-        triagem: true,
-        atendimento: true
+        triagem: {
+          include: {
+            funcionario: {
+              select: { nome: true, perfil: true }
+            }
+          }
+        },
+        atendimento: {
+          include: {
+            funcionario: {
+              select: { nome: true, perfil: true }
+            }
+          }
+        },
+        funcionario: {
+          select: { nome: true, perfil: true }
+        }
       }
     });
     res.json(historico);
