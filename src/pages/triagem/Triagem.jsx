@@ -25,11 +25,18 @@ export default function Triagem() {
         navigate(`/triagem/${id}`);
     }
 
+    async function handleExcluir(id) {
+        const { deletarPaciente } = await import('../../utils/api');
+        await deletarPaciente(id);
+        atualizarLista();
+    }
+
     return (
         <main className="triagem">
             <ListaPacientes
                 pacientes={pacientes}
                 onSelecionar={handleSelecionar}
+                onExcluir={handleExcluir}
                 titulo="Lista de Espera para Triagem"
             />
         </main>

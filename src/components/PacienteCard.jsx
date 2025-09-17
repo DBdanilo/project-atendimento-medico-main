@@ -12,14 +12,8 @@ export default function PacienteCard({ paciente, onSelecionar, onExcluir }) {
 
             <div className="paciente-card-header">
                 <h2>{paciente.nome}</h2>
-
-                {typeof onExcluir === 'function' && <p>Idade: {calcularIdade(paciente.dataNascimento)}</p>}
-
-                <p>Prioridade: {paciente.prioridade}</p>
-
-                {
-                    typeof onExcluir === 'function' && <button className='btn-excluir' onClick={(e) => { e.stopPropagation(); onExcluir(paciente.id); }}>Excluir</button>
-                }
+                <p>Idade: {calcularIdade(paciente.dataNascimento)}</p>
+                <button className='btn-excluir' onClick={(e) => { e.stopPropagation(); onExcluir && onExcluir(paciente.id); }}>Excluir</button>
             </div>
         </article>
     )

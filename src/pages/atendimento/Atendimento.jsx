@@ -36,7 +36,7 @@ export default function Atendimento() {
             <ListaPacientes
                 pacientes={pacientes}
                 onSelecionar={handleSelecionar}
-                titulo="Atendimento Médico"
+                titulo="Lista de Atendimento Médico"
             />
         </main>
     )
