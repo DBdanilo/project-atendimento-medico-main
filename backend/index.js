@@ -9,6 +9,40 @@ require('dotenv').config();
 const app = express();
 const prisma = new PrismaClient();
 
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Endpoint de teste
+app.get('/test', (req, res) => {
+  res.json({ message: 'Backend funcionando!', timestamp: new Date().toISOString() });
+});
+
+// Endpoint de verificação de dados
+app.get('/status-dados', async (req, res) => {
+  try {
+    const [pacientes, funcionarios, triagens, atendimentos] = await Promise.all([
+      prisma.paciente.count(),
+      prisma.funcionario.count(), 
+      prisma.triagem.count(),
+      prisma.atendimento.count()
+    ]);
+    
+    res.json({
+      status: 'ok',
+      dados: {
+        pacientes,
+        funcionarios,
+        triagens,
+        atendimentos,
+        total: pacientes + funcionarios + triagens + atendimentos
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao verificar dados', details: error.message });
+  }
+});
+
 // Rota para buscar prontuário eletrônico por CPF
 app.get('/api/prontuario', async (req, res) => {
   try {
@@ -70,9 +104,6 @@ app.get('/pacientes/cpf/:cpf', async (req, res) => {
   }
 });
 const JWT_SECRET = process.env.JWT_SECRET;
-
-app.use(cors());
-app.use(express.json());
 
 // ================== ROTAS ==================
 
@@ -634,6 +665,194 @@ app.get('/relatorios/prescricoes', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: 'Erro ao gerar relatório de prescrições', details: err.message });
+  }
+});
+
+// =================== ENDPOINT CONSOLIDADO PARA DASHBOARD ===================
+// Endpoint otimizado que retorna todos os relatórios de uma vez
+app.get('/relatorios/dashboard', async (req, res) => {
+  try {
+    console.log('Gerando dashboard consolidado...');
+    
+    // Buscar todos os dados necessários em paralelo
+    const [historicoCompleto, triagens, atendimentos, pacientes] = await Promise.all([
+      prisma.historicoAtendimento.findMany({
+        where: {
+          AND: [
+            { triagemId: { not: null } },
+            { atendimentoId: { not: null } }
+          ]
+        },
+        include: {
+          triagem: true,
+          atendimento: true
+        }
+      }),
+      prisma.triagem.findMany({
+        select: { createdAt: true, prioridade: true }
+      }),
+      prisma.atendimento.findMany({
+        select: { 
+          createdAt: true, 
+          diagnostico: true, 
+          prescricao: true,
+          funcionario: { select: { nome: true } }
+        }
+      }),
+      prisma.paciente.findMany({
+        select: { dataNascimento: true, sexo: true },
+        where: {
+          OR: [
+            { triagens: { some: {} } },
+            { atendimentos: { some: {} } }
+          ]
+        }
+      })
+    ]);
+
+    // ========== PROCESSAMENTO TEMPO MÉDIO ==========
+    let tempoTotalMinutos = 0;
+    let contador = 0;
+    const temposPorPrioridade = { BAIXA: [], MEDIA: [], ALTA: [] };
+
+    historicoCompleto.forEach(item => {
+      if (item.triagem && item.atendimento) {
+        const tempoTriagem = new Date(item.triagem.createdAt);
+        const tempoAtendimento = new Date(item.atendimento.createdAt);
+        const diferencaMinutos = (tempoAtendimento - tempoTriagem) / (1000 * 60);
+        
+        if (diferencaMinutos > 0) {
+          tempoTotalMinutos += diferencaMinutos;
+          contador++;
+          
+          const prioridade = item.prioridadeTriagem || item.triagem.prioridade;
+          if (temposPorPrioridade[prioridade]) {
+            temposPorPrioridade[prioridade].push(diferencaMinutos);
+          }
+        }
+      }
+    });
+
+    const tempoMedioGeral = contador > 0 ? Math.round(tempoTotalMinutos / contador) : 0;
+    const tempoMedioPorPrioridade = {};
+    Object.keys(temposPorPrioridade).forEach(prioridade => {
+      const tempos = temposPorPrioridade[prioridade];
+      tempoMedioPorPrioridade[prioridade] = tempos.length > 0 
+        ? Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length)
+        : 0;
+    });
+
+    // ========== PROCESSAMENTO PICOS DE DEMANDA ==========
+    const demandaPorHora = {};
+    for (let i = 0; i < 24; i++) {
+      demandaPorHora[i] = { triagens: 0, atendimentos: 0, total: 0 };
+    }
+
+    triagens.forEach(triagem => {
+      const hora = new Date(triagem.createdAt).getHours();
+      demandaPorHora[hora].triagens++;
+      demandaPorHora[hora].total++;
+    });
+
+    atendimentos.forEach(atendimento => {
+      const hora = new Date(atendimento.createdAt).getHours();
+      demandaPorHora[hora].atendimentos++;
+      demandaPorHora[hora].total++;
+    });
+
+    let picoHora = 0;
+    let picoTotal = 0;
+    Object.keys(demandaPorHora).forEach(hora => {
+      if (demandaPorHora[hora].total > picoTotal) {
+        picoTotal = demandaPorHora[hora].total;
+        picoHora = parseInt(hora);
+      }
+    });
+
+    // ========== PROCESSAMENTO FAIXA ETÁRIA ==========
+    const faixas = {
+      'pediatria': { masculino: 0, feminino: 0, total: 0 },
+      'adolescente': { masculino: 0, feminino: 0, total: 0 },
+      'adulto': { masculino: 0, feminino: 0, total: 0 },
+      'idoso': { masculino: 0, feminino: 0, total: 0 }
+    };
+
+    const hoje = new Date();
+    
+    pacientes.forEach(paciente => {
+      const nascimento = new Date(paciente.dataNascimento);
+      const idade = Math.floor((hoje - nascimento) / (1000 * 60 * 60 * 24 * 365.25));
+      
+      let faixa;
+      if (idade <= 12) faixa = 'pediatria';
+      else if (idade <= 17) faixa = 'adolescente';
+      else if (idade <= 60) faixa = 'adulto';
+      else faixa = 'idoso';
+
+      if (paciente.sexo.toLowerCase() === 'masculino') {
+        faixas[faixa].masculino++;
+      } else {
+        faixas[faixa].feminino++;
+      }
+      faixas[faixa].total++;
+    });
+
+    // ========== PROCESSAMENTO DIAGNÓSTICOS ==========
+    const diagnosticos = {};
+    atendimentos.forEach(atendimento => {
+      if (atendimento.diagnostico && atendimento.diagnostico.trim()) {
+        const diag = atendimento.diagnostico.trim();
+        diagnosticos[diag] = (diagnosticos[diag] || 0) + 1;
+      }
+    });
+
+    const top10Diagnosticos = Object.entries(diagnosticos)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 10)
+      .map(([diagnostico, count]) => ({ diagnostico, count }));
+
+    // ========== PROCESSAMENTO PRESCRIÇÕES ==========
+    const prescricoes = {};
+    atendimentos.forEach(atendimento => {
+      if (atendimento.prescricao && atendimento.prescricao.trim()) {
+        const presc = atendimento.prescricao.trim();
+        prescricoes[presc] = (prescricoes[presc] || 0) + 1;
+      }
+    });
+
+    const top10Prescricoes = Object.entries(prescricoes)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 10)
+      .map(([prescricao, count]) => ({ prescricao, count }));
+
+    // ========== RESPOSTA CONSOLIDADA ==========
+    const dashboard = {
+      ultimaAtualizacao: new Date().toISOString(),
+      tempoMedio: {
+        tempoMedioGeral: `${tempoMedioGeral} minutos`,
+        tempoMedioPorPrioridade,
+        totalAtendimentos: contador
+      },
+      picosDemanda: {
+        demandaPorHora,
+        picoHorario: `${picoHora}:00 - ${picoHora + 1}:00`,
+        totalPico: picoTotal
+      },
+      faixaEtaria: faixas,
+      diagnosticos: {
+        top10Diagnosticos,
+        totalAtendimentos: atendimentos.length
+      },
+      prescricoes: {
+        top10Prescricoes,
+        totalPrescricoes: atendimentos.length
+      }
+    };
+
+    res.json(dashboard);
+  } catch (err) {
+    console.error('Erro ao gerar dashboard:', err);
+    res.status(500).json({ error: 'Erro ao gerar dashboard consolidado', details: err.message });
   }
 });
 

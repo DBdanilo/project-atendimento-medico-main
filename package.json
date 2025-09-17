@@ -18,6 +18,8 @@
     "axios": "^1.12.1",
     "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.2",
+    "jspdf": "^3.0.2",
+    "jspdf-autotable": "^5.0.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.2",

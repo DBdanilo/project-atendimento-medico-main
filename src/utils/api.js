@@ -3,7 +3,9 @@ export const getPacientePorCpf = (cpf) => api.get(`/pacientes/cpf/${cpf}`).then(
 
 import axios from 'axios';
 
-const api = axios.create({});
+const api = axios.create({
+  baseURL: 'http://localhost:3001'
+});
 
 // Pacientes
 export const getPacientes = () => api.get('/pacientes').then(res => res.data);
@@ -29,6 +31,12 @@ export const atualizarAtendimento = (id, atendimento) => api.put(`/atendimentos/
 
 // Relatórios
 export const getRelatorioAtendimentos = () => api.get('/relatorios/atendimentos').then(res => res.data);
+export const getDashboardConsolidado = () => api.get('/relatorios/dashboard').then(res => res.data);
+export const getRelatorioTempoMedio = () => api.get('/relatorios/tempo-medio').then(res => res.data);
+export const getRelatorioPicosDemanda = () => api.get('/relatorios/picos-demanda').then(res => res.data);
+export const getRelatorioFaixaEtaria = () => api.get('/relatorios/faixa-etaria').then(res => res.data);
+export const getRelatorioDiagnosticos = () => api.get('/relatorios/diagnosticos').then(res => res.data);
+export const getRelatorioPrescricoes = () => api.get('/relatorios/prescricoes').then(res => res.data);
 
 // Painel
 export const getPainel = () => api.get('/painel').then(res => res.data);
