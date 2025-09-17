@@ -13,6 +13,7 @@ export default defineConfig({
       '/login': 'http://localhost:3001',
       '/relatorios': 'http://localhost:3001',
       '/painel': 'http://localhost:3001',
+      '/api': 'http://localhost:3001',
     }
   }
 })

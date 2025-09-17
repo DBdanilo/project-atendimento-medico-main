@@ -1,20 +1,3 @@
-// Rota para buscar prontuário eletrônico por CPF
-app.get('/api/prontuario', async (req, res) => {
-  try {
-    const cpfBusca = (req.query.cpf || '').replace(/\D/g, '');
-    // Busca paciente pelo CPF
-    const paciente = await prisma.paciente.findFirst({ where: { cpf: cpfBusca } });
-    if (!paciente) return res.status(404).json([]);
-    // Busca histórico de atendimento do paciente
-    const historico = await prisma.historicoAtendimento.findMany({
-      where: { pacienteId: paciente.id },
-      orderBy: { dataEvento: 'desc' }
-    });
-    res.json(historico);
-  } catch (err) {
-    res.status(500).json({ error: 'Erro ao buscar prontuário', details: err.message });
-  }
-});
 // ================== IMPORTS E INICIALIZAÇÃO ==================
 const express = require('express');
 const cors = require('cors');
@@ -25,6 +8,28 @@ require('dotenv').config();
 
 const app = express();
 const prisma = new PrismaClient();
+
+// Rota para buscar prontuário eletrônico por CPF
+app.get('/api/prontuario', async (req, res) => {
+  try {
+    const cpfBusca = (req.query.cpf || '').replace(/\D/g, '');
+    // Busca paciente pelo CPF
+    const paciente = await prisma.paciente.findFirst({ where: { cpf: cpfBusca } });
+    if (!paciente) return res.status(404).json([]);
+    // Busca histórico de atendimento do paciente
+    const historico = await prisma.historicoAtendimento.findMany({
+      where: { pacienteId: paciente.id },
+      orderBy: { dataEvento: 'desc' },
+      include: {
+        triagem: true,
+        atendimento: true
+      }
+    });
+    res.json(historico);
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao buscar prontuário', details: err.message });
+  }
+});
 
 // Buscar paciente por CPF
 app.get('/pacientes/cpf/:cpf', async (req, res) => {
