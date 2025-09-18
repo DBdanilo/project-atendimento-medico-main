@@ -326,8 +326,15 @@ app.post('/pacientes', async (req, res) => {
     let { nome, cpf, dataNascimento, sexo, endereco, telefone, prioridade, listaEsperaTriagem } = req.body;
     if (!nome || !cpf || !dataNascimento || !sexo) return res.status(400).json({ error: 'Dados obrigatórios' });
     cpf = (cpf || '').replace(/\D/g, '');
+    // Normaliza sexo para 'M' ou 'F'
+    let sexoPadrao = 'F';
+    if (typeof sexo === 'string') {
+      const s = sexo.trim().toUpperCase();
+      if (s === 'M' || s === 'MASCULINO' || s === 'MASC') sexoPadrao = 'M';
+      else if (s === 'F' || s === 'FEMININO' || s === 'FEM') sexoPadrao = 'F';
+    }
     const paciente = await prisma.paciente.create({
-      data: { nome, cpf, dataNascimento, sexo, endereco, telefone, prioridade, listaEsperaTriagem: !!listaEsperaTriagem }
+      data: { nome, cpf, dataNascimento, sexo: sexoPadrao, endereco, telefone, prioridade, listaEsperaTriagem: !!listaEsperaTriagem }
     });
     res.status(201).json(paciente);
   } catch (e) {
@@ -364,7 +371,15 @@ app.put('/pacientes/:id', async (req, res) => {
     if (nome !== undefined) data.nome = nome;
     if (cpf !== undefined) data.cpf = (cpf || '').replace(/\D/g, '');
     if (dataNascimento !== undefined) data.dataNascimento = dataNascimento;
-    if (sexo !== undefined) data.sexo = sexo;
+    if (sexo !== undefined) {
+      let sexoPadrao = 'F';
+      if (typeof sexo === 'string') {
+        const s = sexo.trim().toUpperCase();
+        if (s === 'M' || s === 'MASCULINO' || s === 'MASC') sexoPadrao = 'M';
+        else if (s === 'F' || s === 'FEMININO' || s === 'FEM') sexoPadrao = 'F';
+      }
+      data.sexo = sexoPadrao;
+    }
     if (endereco !== undefined) data.endereco = endereco;
     if (telefone !== undefined) data.telefone = telefone;
     if (prioridade !== undefined) data.prioridade = prioridade;
@@ -527,14 +542,18 @@ app.get('/relatorios/faixa-etaria', async (req, res) => {
     pacientes.forEach(paciente => {
       const nascimento = new Date(paciente.dataNascimento);
       const idade = Math.floor((hoje - nascimento) / (1000 * 60 * 60 * 24 * 365.25));
-      
       let faixa;
       if (idade <= 12) faixa = 'pediatria';
       else if (idade <= 17) faixa = 'adolescente';
       else if (idade <= 60) faixa = 'adulto';
       else faixa = 'idoso';
 
-      const sexo = paciente.sexo.toLowerCase() === 'masculino' ? 'masculino' : 'feminino';
+      let sexo = 'feminino';
+      if (typeof paciente.sexo === 'string') {
+        const s = paciente.sexo.trim().toUpperCase();
+        if (s === 'M') sexo = 'masculino';
+        else if (s === 'F') sexo = 'feminino';
+      }
       faixas[faixa][sexo]++;
       faixas[faixa].total++;
     });
@@ -789,10 +808,10 @@ app.get('/relatorios/dashboard', async (req, res) => {
       else if (idade <= 60) faixa = 'adulto';
       else faixa = 'idoso';
 
-      if (paciente.sexo.toLowerCase() === 'masculino') {
-        faixas[faixa].masculino++;
-      } else {
-        faixas[faixa].feminino++;
+      if (typeof paciente.sexo === 'string') {
+        const s = paciente.sexo.trim().toUpperCase();
+        if (s === 'M') faixas[faixa].masculino++;
+        else if (s === 'F') faixas[faixa].feminino++;
       }
       faixas[faixa].total++;
     });

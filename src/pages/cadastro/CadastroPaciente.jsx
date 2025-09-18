@@ -59,7 +59,15 @@ export default function CadastroPaciente() {
 
     function handleChange(e) {
         const { name, value } = e.target;
-        setForm(prev => ({ ...prev, [name]: value }))
+        if (name === 'sexo') {
+            let sexoPadrao = 'F';
+            const s = value.trim().toUpperCase();
+            if (s === 'M' || s === 'MASCULINO' || s === 'MASC') sexoPadrao = 'M';
+            else if (s === 'F' || s === 'FEMININO' || s === 'FEM') sexoPadrao = 'F';
+            setForm(prev => ({ ...prev, sexo: sexoPadrao }));
+        } else {
+            setForm(prev => ({ ...prev, [name]: value }));
+        }
     }
 
     function handlePrioridade(novaPrioridade) {
@@ -97,7 +105,7 @@ export default function CadastroPaciente() {
                 nome: '',
                 cpf: '',
                 dataNascimento: '',
-                sexo: '',
+                sexo: 'F',
                 endereco: '',
                 telefone: '',
                 prioridade: 'Normal',
