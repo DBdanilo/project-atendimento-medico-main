@@ -23,19 +23,29 @@ export default function Atendimento() {
 
     function handleSelecionar(id) {
         const paciente = pacientes.find(p => p.id === id)
-
         if (!paciente) return
-
         navigate(`/atendimento/${id}`)
     }
 
-
+    async function handleExcluir(id) {
+        // Remove do backend
+        try {
+            // Import deletarPaciente dinamicamente para evitar erro de import
+            const { deletarPaciente } = await import('../../utils/api');
+            await deletarPaciente(id);
+            // Remove da lista local
+            setPacientes(pacientes => pacientes.filter(p => p.id !== id));
+        } catch (err) {
+            alert('Erro ao excluir paciente!');
+        }
+    }
 
     return (
         <main className="atendimento">
             <ListaPacientes
                 pacientes={pacientes}
                 onSelecionar={handleSelecionar}
+                onExcluir={handleExcluir}
                 titulo="Lista de Atendimento Médico"
             />
         </main>

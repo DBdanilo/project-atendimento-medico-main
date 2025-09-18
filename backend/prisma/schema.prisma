@@ -41,7 +41,7 @@ model Funcionario {
 
 model Triagem {
   id           String     @id @default(uuid())
-  paciente     Paciente   @relation(fields: [pacienteId], references: [id])
+  paciente     Paciente   @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
   pacienteId   String
   funcionario  Funcionario? @relation("FuncionarioTriagens", fields: [funcionarioId], references: [id])
   funcionarioId String?
@@ -57,7 +57,7 @@ model Triagem {
 
 model Atendimento {
   id           String     @id @default(uuid())
-  paciente     Paciente   @relation(fields: [pacienteId], references: [id])
+  paciente     Paciente   @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
   pacienteId   String
   funcionario  Funcionario @relation(fields: [funcionarioId], references: [id])
   funcionarioId String
@@ -73,7 +73,7 @@ model Atendimento {
 
 model HistoricoAtendimento {
   id                      String      @id @default(uuid())
-  paciente                Paciente    @relation(fields: [pacienteId], references: [id])
+  paciente                Paciente    @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
   pacienteId              String
   triagem                 Triagem?    @relation(fields: [triagemId], references: [id])
   triagemId               String?
