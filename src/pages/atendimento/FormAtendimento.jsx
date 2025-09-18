@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getPaciente } from '../../utils/api'
 import { criarAtendimento } from '../../utils/api'
@@ -19,7 +19,6 @@ export default function FormAtendimento() {
     const [paciente, setPaciente] = useState({})
     const { id } = useParams()
     const navigate = useNavigate()
-    const salvoRef = useRef(false)
 
     useEffect(() => {
         async function fetchPaciente() {
@@ -69,7 +68,6 @@ export default function FormAtendimento() {
             observacao: formAtendimento.observacao,
             prioridade: paciente.prioridade || 'Normal'
         });
-        salvoRef.current = true;
         alert('Atendimento salvo com sucesso!');
         navigate('/atendimento');
         window.scrollTo(0, 0);

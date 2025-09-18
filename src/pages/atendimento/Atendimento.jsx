@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ListaPacientes from '../../components/ListaPacientes'
 import { getPacientes } from '../../utils/api'

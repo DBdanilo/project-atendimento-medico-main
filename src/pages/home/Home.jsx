@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faHeartbeat, faHospital, faUserMd, faUserInjured } from '@fortawesome/free-solid-svg-icons'
 import { faGithub as faGithubBrand, faLinkedin as faLinkedinBrand } from '@fortawesome/free-brands-svg-icons'
 import { participantes } from './participantes'
-//import { inicializarPacientesAleatorios } from "../../utils/dados"
 
 import './Home.css'
 
@@ -19,7 +18,6 @@ export function Home() {
     const [noticiaAtual, setNoticiaAtual] = useState(0);
 
     useEffect(() => {
-        //inicializarPacientesAleatorios()
     }, [])
 
     useEffect(() => {
