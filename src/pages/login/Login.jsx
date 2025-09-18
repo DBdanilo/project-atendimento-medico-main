@@ -14,14 +14,14 @@ export default function Login({ onLogin }) {
 		setError('');
 		try {
 			const res = await login(username, password);
-			if (onLogin) onLogin(res.nome);
 			localStorage.setItem('token', res.token);
 			localStorage.setItem('usuarioLogado', res.nome);
 			localStorage.setItem('perfilUsuario', res.perfil);
 			if (res.id) {
 				localStorage.setItem('usuarioId', res.id);
 			}
-		} catch (err) {
+			if (onLogin) onLogin(res.nome, res.perfil);
+		} catch {
 			setError('Usuário ou senha inválidos');
 		}
 	};
