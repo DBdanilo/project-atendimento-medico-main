@@ -6,8 +6,36 @@ const prisma = new PrismaClient();
 const faker = require('faker-br');
 
 const sobrenomesBrasileiros = [
-    'Silva', 'Santos', 'Oliveira', 'Souza', 'Rodrigues', 'Ferreira', 'Alves', 'Pereira',
-    'Lima', 'Gomes', 'Costa', 'Ribeiro', 'Martins', 'Carvalho', 'Almeida', 'Lopes'
+    "Silva",
+    "Santos",
+    "Oliveira",
+    "Souza",
+    "Rodrigues",
+    "Ferreira",
+    "Alves",
+    "Pereira",
+    "Lima",
+    "Gomes",
+    "Costa",
+    "Ribeiro",
+    "Martins",
+    "Carvalho",
+    "Almeida",
+    "Lopes",
+    "Soares",
+    "Fernandes",
+    "Vieira",
+    "Barbosa",
+    "Rocha",
+    "Dias",
+    "Nunes",
+    "Mendes",
+    "Melo",
+    "Cardoso",
+    "Teixeira",
+    "Correia",
+    "Pinto",
+    "Monteiro"
 ];
 
 async function main() {
