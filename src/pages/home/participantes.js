@@ -1,19 +1,19 @@
 // Adicione aqui os dados dos participantes do projeto
 export const participantes = [
-    {
-        nome: 'Danilo Macedo',
-        github: 'https://github.com/DBdanilo',
-        linkedin: 'https://www.linkedin.com/in/danilo-b-macedo-739423205/'
-    },
-    {
-        nome: 'Carol Montenegro',
-        github: 'https://github.com/montenegromc',
-        linkedin: 'https://www.linkedin.com/in/carol-montenegro'
-    },
-    {
-        nome: 'Jailson Bezerra',
-        github: 'https://github.com/jailsonbezerra',
-        linkedin: 'https://www.linkedin.com/in/jailson-bezerra-61176a289'
-    }
-    // Adicione mais participantes conforme necessário
-]
+  {
+    nome: "Danilo Macedo",
+    github: "https://github.com/DBdanilo",
+    linkedin: "https://www.linkedin.com/in/danilo-b-macedo-739423205/",
+  },
+  {
+    nome: "Luis Felipe",
+    github: "https://github.com/luisfelipeandrade19",
+    linkedin: "https://www.linkedin.com/in/luisfelipeandrade19/",
+  },
+  {
+    nome: "Daniel Victor",
+    github: "https://github.com/danielvincks",
+    linkedin: "https://www.linkedin.com/in/daniel-victor-637a7388/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+  },
+  // Adicione mais participantes conforme necessário
+];
