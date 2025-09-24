@@ -160,6 +160,89 @@ app.post('/atendimentos', async (req, res) => {
         prioridade
       }
     });
+
+    // --- Lógica para preencher HistoricoAtendimento com dados detalhados ---
+    // Busca a triagem mais recente do paciente
+    const triagem = await prisma.triagem.findFirst({
+      where: { pacienteId },
+      orderBy: { createdAt: 'desc' }
+    });
+    // Busca dados detalhados do atendimento recém-criado
+    const atendimentoDetalhado = await prisma.atendimento.findUnique({ where: { id: atendimento.id } });
+    if (triagem) {
+      // Tenta encontrar um histórico existente só com triagem
+      const historicoExistente = await prisma.historicoAtendimento.findFirst({
+        where: {
+          pacienteId,
+          triagemId: triagem.id,
+          atendimentoId: null
+        }
+      });
+      if (historicoExistente) {
+        await prisma.historicoAtendimento.update({
+          where: { id: historicoExistente.id },
+          data: {
+            atendimentoId: atendimento.id,
+            funcionarioId,
+            dataEvento: new Date(),
+            // Dados detalhados da triagem
+            temperatura: triagem.temperatura,
+            pressao: triagem.pressao,
+            peso: triagem.peso,
+            altura: triagem.altura,
+            observacaoTriagem: triagem.observacao,
+            prioridadeTriagem: triagem.prioridade,
+            // Dados detalhados do atendimento
+            motivo: atendimentoDetalhado.motivo,
+            diagnostico: atendimentoDetalhado.diagnostico,
+            prescricao: atendimentoDetalhado.prescricao,
+            observacaoAtendimento: atendimentoDetalhado.observacao,
+            prioridadeAtendimento: atendimentoDetalhado.prioridade
+          }
+        });
+      } else {
+        await prisma.historicoAtendimento.create({
+          data: {
+            pacienteId,
+            triagemId: triagem.id,
+            atendimentoId: atendimento.id,
+            funcionarioId,
+            dataEvento: new Date(),
+            // Dados detalhados da triagem
+            temperatura: triagem.temperatura,
+            pressao: triagem.pressao,
+            peso: triagem.peso,
+            altura: triagem.altura,
+            observacaoTriagem: triagem.observacao,
+            prioridadeTriagem: triagem.prioridade,
+            // Dados detalhados do atendimento
+            motivo: atendimentoDetalhado.motivo,
+            diagnostico: atendimentoDetalhado.diagnostico,
+            prescricao: atendimentoDetalhado.prescricao,
+            observacaoAtendimento: atendimentoDetalhado.observacao,
+            prioridadeAtendimento: atendimentoDetalhado.prioridade
+          }
+        });
+      }
+    } else {
+      // Se não houver triagem, cria histórico só com atendimento
+      await prisma.historicoAtendimento.create({
+        data: {
+          pacienteId,
+          atendimentoId: atendimento.id,
+          funcionarioId,
+          dataEvento: new Date(),
+          // Dados detalhados do atendimento
+          motivo: atendimentoDetalhado.motivo,
+          diagnostico: atendimentoDetalhado.diagnostico,
+          prescricao: atendimentoDetalhado.prescricao,
+          observacaoAtendimento: atendimentoDetalhado.observacao,
+          prioridadeAtendimento: atendimentoDetalhado.prioridade
+        }
+      });
+    }
+    // --- Fim da lógica de persistência detalhada ---
+
     res.status(201).json(atendimento);
   } catch (err) {
     console.error('Erro ao registrar atendimento:', err);
