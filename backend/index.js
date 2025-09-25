@@ -1,10 +1,12 @@
 // ================== IMPORTS E INICIALIZAÇÃO ==================
-const express = require('express');
-const cors = require('cors');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const { PrismaClient } = require('@prisma/client');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
+import process from 'process';
+dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient();
@@ -103,7 +105,11 @@ app.get('/pacientes/cpf/:cpf', async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar paciente por CPF' });
   }
 });
+// Certifique-se de que está rodando em Node.js e dotenv.config() foi chamado acima
 const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET não definido nas variáveis de ambiente. Verifique seu arquivo .env.');
+}
 
 // ================== ROTAS ==================
 
