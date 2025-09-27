@@ -1,102 +1,113 @@
+c:\project-atendimento-medico
+
 # Hospital Atendimento Web System
 
-Sistema web para gerenciamento do fluxo de atendimento hospitalar, desenvolvido com Vite + React.
+Sistema completo para gerenciamento do fluxo de atendimento hospitalar, com frontend em React e backend Node.js/Express/Prisma/PostgreSQL.
 
 ## Visão Geral
 
-O projeto tem como objetivo organizar e facilitar o fluxo de pacientes em um ambiente hospitalar, desde o cadastro até o atendimento, com foco em responsividade, usabilidade e clareza visual.
+Este projeto organiza e facilita o fluxo de pacientes em ambiente hospitalar, desde o cadastro até o atendimento, triagem, relatórios e dashboards, com foco em usabilidade, segurança e gestão eficiente.
 
-## Funcionalidades
+## Funcionalidades Principais
 
-- **Cadastro de Pacientes**: Registro de novos pacientes com dados básicos.
-- **Triagem**: Registro de sinais vitais, observações e classificação de prioridade (Urgente, Moderado, Normal).
-- **Atendimento**: Visualização dos dados do paciente e triagem, registro do atendimento médico.
-- **Painel de Situação**: Exibição em tempo real do status dos pacientes, sem opção de exclusão.
-- **Reclassificação de Prioridade**: Botões destacados e responsivos para reclassificação durante a triagem.
+- **Cadastro de Pacientes**: Registro e edição de pacientes com dados completos.
+- **Triagem**: Registro de sinais vitais, observações e classificação de prioridade.
+- **Atendimento Médico**: Registro detalhado do atendimento, diagnóstico e prescrição.
+- **Painel de Situação**: Visualização em tempo real do status dos pacientes.
+- **Prontuário Eletrônico**: Histórico completo de triagens e atendimentos por paciente.
+- **Relatórios Gerenciais**: Relatórios de tempo médio, picos de demanda, faixa etária, diagnósticos e prescrições.
+- **Dashboards**: Indicadores visuais e estatísticas consolidadas.
+- **Exportação para PDF**: Relatórios exportáveis usando jsPDF.
+- **Autenticação de Funcionários**: Login seguro para médicos, técnicos, atendentes e gestores.
 - **Responsividade**: Layout adaptado para desktop, tablet e mobile.
-- **Experiência do Usuário**: Botões sempre visíveis, destaque para ações principais, rolagem suave em listas longas.
 
-## Estrutura do Projeto
+## Arquitetura do Projeto
 
 ```
-c:\project-atendimento-medico
+project-atendimento-medico-main/
 │
-├── public/                # Arquivos estáticos
+├── backend/
+│   ├── index.js            # API Express, rotas, autenticação, relatórios
+│   ├── prisma/
+│   │   ├── schema.prisma   # Modelos do banco de dados
+│   │   └── migrations/     # Migrações do banco
+│   └── ...
 ├── src/
-│   ├── assets/            # Imagens e ícones
-│   ├── components/        # Componentes globais (Header, Nav, etc.)
-│   ├── hooks/             # Hooks customizados
-│   ├── pages/
-│   │   ├── cadastro/      # Página de cadastro de pacientes
-│   │   ├── triagem/
-│   │   │   ├── components/  # Componentes reutilizáveis da triagem
-│   │   │   ├── TriagemDetalhe.jsx
-│   │   │   ├── TriagemDetalhe.css
-│   │   │   └── ...
-│   │   ├── atendimento/   # Página de atendimento
-│   │   ├── painel/        # Painel de situação
-│   ├── utils/             # Funções utilitárias (ex: calcular idade)
-│   ├── App.jsx            # Componente principal
-│   ├── main.jsx           # Ponto de entrada
-│   └── index.css          # CSS global
-├── package.json           # Dependências e scripts
-├── vite.config.js         # Configuração do Vite
-├── README.md              # Este arquivo
-└── ...
+│   ├── assets/             # Imagens e ícones
+│   ├── components/         # Componentes globais (Header, Nav, etc.)
+│   ├── hooks/              # Hooks customizados
+│   ├── pages/              # Páginas principais (cadastro, triagem, atendimento, painel, relatórios, prontuário)
+│   ├── utils/              # Funções utilitárias e API frontend
+│   ├── App.jsx             # Componente principal
+│   └── main.jsx            # Ponto de entrada
+├── public/                 # Arquivos estáticos
+├── package.json            # Dependências e scripts
+├── vite.config.js          # Configuração do Vite
+└── README.md               # Este arquivo
 ```
 
-## Principais Componentes
+## Tecnologias Utilizadas
 
-- `Header`, `Nav`: Navegação principal.
-- `PacienteInfo`: Exibe informações básicas do paciente na triagem.
-- `PrioridadeTriagem`: Botões de reclassificação de prioridade.
-- `useFormFields`: Hook customizado para controle de formulários.
+- **Frontend:** React, Vite, jsPDF, jspdf-autotable, CSS modularizado
+- **Backend:** Node.js, Express, Prisma ORM, JWT, bcryptjs, dotenv
+- **Banco de Dados:** PostgreSQL
 
-## Boas Práticas Adotadas
+## Fluxo de Funcionamento
 
-- Componentização e reutilização de código.
-- Separação de responsabilidades (componentes, hooks, utils).
-- CSS modularizado por página/componente.
-- Funções utilitárias em `utils/`.
-- Responsividade com media queries e flexbox.
-- Sem lógica inline desnecessária.
+1. **Cadastro:** Paciente é cadastrado pelo atendente.
+2. **Triagem:** Técnico registra sinais vitais, prioridade e observações.
+3. **Atendimento:** Médico visualiza dados e registra diagnóstico/prescrição.
+4. **Prontuário:** Todo histórico fica disponível para consulta.
+5. **Relatórios/Dashboards:** Gestor acessa indicadores e exporta relatórios em PDF.
 
 ## Como Executar o Projeto
 
-1. **Pré-requisitos:**
-   - Node.js 18+
-   - npm ou yarn
+### 1. Pré-requisitos
+- Node.js 18+
+- PostgreSQL
 
-2. **Instalação:**
+### 2. Configuração do Banco
+1. Configure o arquivo `.env` em `backend/` com sua string de conexão PostgreSQL:
+   ```
+   DATABASE_URL=postgresql://usuario:senha@localhost:5432/seubanco
+   JWT_SECRET=sua_chave_secreta
+   ```
+2. Rode as migrações:
    ```bash
-   npm install
-   # ou
-   yarn
+   cd backend
+   npx prisma migrate deploy
    ```
 
-3. **Execução em modo desenvolvimento:**
-   ```bash
-   npm run dev
-   # ou
-   yarn dev
-   ```
+### 3. Instalação das Dependências
+```bash
+cd backend && npm install
+cd ../ && npm install
+```
 
-4. **Build para produção:**
-   ```bash
-   npm run build
-   # ou
-   yarn build
-   ```
+### 4. Execução
+- **Backend:**
+  ```bash
+  cd backend
+  node index.js
+  ```
+- **Frontend:**
+  ```bash
+  npm run dev
+  ```
 
-5. **Acesso:**
-   - Acesse `http://localhost:5173` no navegador.
+### 5. Acesso
+- Frontend: http://localhost:5173
+- Backend: http://localhost:3001
 
-## Observações
+## Diferenciais do Projeto
 
-- O sistema não implementa backend, persistência ou autenticação por padrão (apenas front-end).
-- Para integração com API, adapte os métodos de cada página conforme necessário.
-- O painel de situação é atualizado automaticamente conforme alterações nas etapas anteriores.
+- Estrutura modular e escalável
+- Segurança com autenticação JWT e hash de senha
+- Relatórios e dashboards completos (tempo médio, picos, diagnósticos, prescrições)
+- Exportação de relatórios em PDF (jsPDF)
+- Prontuário eletrônico integrado
+- Código limpo, componentizado e documentado
 
 ## Contato
 
-Dúvidas ou sugestões? Abra uma issue ou entre em contato com o responsável pelo projeto.
+Dúvidas, sugestões ou contribuições? Abra uma issue ou entre em contato com o responsável pelo projeto.
